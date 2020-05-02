@@ -1,6 +1,9 @@
 ({
 
     submit: function(component, utterance, session, fileName, base64Data, callback) {
+        var logger = component.find('logger');
+        logger.info('submit({0}, {1}, {2})', [utterance, session, fileName]);
+
         var action = component.get("c.submit"); 
         action.setParams({
       		utterance: utterance,
@@ -14,16 +17,18 @@
 	            callback(a.getReturnValue());
             } else if (state === 'ERROR') {
 	            var errors = a.getError();
-                console.log(errors);
                 if (errors) {
                     if (errors[0] && errors[0].message) {
+                        logger.fatal(errors[0].message);
                         alert("Error message: " + errors[0].message);
+                    } else {
+                        logger.fatal(errors);
                     }
                 } else {
-                    console.log("Unknown error");
+                    console.fatal("Unknown error");
                 }
             } else if (state === "INCOMPLETE") {
-				console.log("Incomplete");
+				console.fatal("Incomplete");
             }
 
         });
