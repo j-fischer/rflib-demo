@@ -17,6 +17,8 @@
 	<aura:handler name="init" value="{!this}" action="{!c.doInit}" />
     <aura:handler event="c:PropertyFilterChange" action="{!c.onFilterChange}"/>
 
+    <c:rflibLoggerCmp aura:id="logger" name="PropertyTileList" appendComponentId="false" />
+
     <div class="slds-card">
         <lightning:layout horizontalAlign="center" multipleRows="true">
             <aura:iteration items="{!v.properties}" var="property">

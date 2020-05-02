@@ -3,7 +3,9 @@
 	<!-- Components that allows users to control connected thermostats -->
 
 	<aura:attribute name="currentTemp" type="Integer" default="66"/>
-	<aura:attribute name="requestedTemp" type="Integer" default="66"/>
+    <aura:attribute name="requestedTemp" type="Integer" default="66"/>
+    
+    <c:rflibLoggerCmp aura:id="logger" name="SmartThermostat" appendComponentId="false" />
     
     <div>
         <div class="current-temp">{!v.currentTemp}°</div>

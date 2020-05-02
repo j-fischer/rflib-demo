@@ -9,6 +9,8 @@
     <aura:attribute name="visualSearchKey" type="String" default=""/>
     
     <aura:registerEvent name="propertyFilterChange" type="c:PropertyFilterChange"/>
+
+    <c:rflibLoggerCmp aura:id="logger" name="PropertyFilters" appendComponentId="false" />
         
     <lightning:card title="Filters" iconName="utility:rating">
 

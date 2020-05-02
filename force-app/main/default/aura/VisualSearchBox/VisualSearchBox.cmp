@@ -8,6 +8,8 @@
 
     <aura:registerEvent name="onPrediction" type="c:VisualSearchEvent" />
 
+    <c:rflibLoggerCmp aura:id="logger" name="VisualSearchBox" appendComponentId="false" />
+
     <div>
 
         <p class="slds-form-element__label">Visual search</p>

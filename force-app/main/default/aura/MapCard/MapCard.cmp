@@ -13,6 +13,8 @@
 
     <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
 
+    <c:rflibLoggerCmp aura:id="logger" name="MapCard" appendComponentId="true" />
+
     <force:recordData aura:id="service"
                          recordId="{!v.dsRecordId}"
                          targetFields="{!v.sObject}"

@@ -4,6 +4,8 @@
     <aura:attribute name="slideWidth" type="Integer" default="0"/>
     <aura:attribute name="slides" type="Object[]"/>
 
+    <c:rflibLoggerCmp aura:id="logger" name="PictureCarousel" appendComponentId="false" />
+
     <div aura:id="gallery" class="gallery">
         <div class="filmstrip" style="{! 'margin-left: -' + (v.slideIndex * v.slideWidth) + 'px'}">
             <aura:iteration items="{!v.slides}" var="slide" indexVar="index">

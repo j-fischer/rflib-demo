@@ -10,6 +10,8 @@
 
     <aura:handler name="change" value="{!v.brightness}" action="{!c.brightnessChange}"/>
 
+    <c:rflibLoggerCmp aura:id="logger" name="SmartLights" appendComponentId="false" />
+
     <div>
         <aura:iteration items="{!v.lights}" var="light" indexVar="index">
             <lightning:layout >

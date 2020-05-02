@@ -3,7 +3,9 @@
 	<aura:attribute name="property" type="Property__c"/>
 
     <aura:registerEvent name="navigateToSObject" type="force:navigateToSObject"/>
-    <aura:registerEvent name="selectSObject" type="ltng:selectSObject"/>
+	<aura:registerEvent name="selectSObject" type="ltng:selectSObject"/>
+	
+	<c:rflibLoggerCmp aura:id="logger" name="PropertyTile" appendComponentId="true" />
     
 	<a onclick="{!c.propertySelected}">
     	<div style="{# 'background-image:url(' + v.property.Thumbnail__c + ')'}">

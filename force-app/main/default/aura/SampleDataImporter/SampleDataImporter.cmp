@@ -4,6 +4,8 @@
     <aura:attribute name="showSpinner" type="Boolean" default="false" /> 
     <lightning:notificationsLibrary aura:id="notifLib" />
 
+    <c:rflibLoggerCmp aura:id="logger" name="SampleDataImporter" appendComponentId="false" />
+
     <div class="slds-card">
         <div class="slds-media__body">
             <p><lightning:icon iconName="utility:database" size="large" /></p>

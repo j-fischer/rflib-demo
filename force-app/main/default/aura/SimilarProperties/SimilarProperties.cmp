@@ -10,6 +10,8 @@
 
     <aura:handler event="ltng:selectSObject" action="{!c.recordChangeHandler}" />
 
+    <c:rflibLoggerCmp aura:id="logger" name="SimilarProperties" appendComponentId="false" />
+
     <lightning:card iconName="custom:custom90" title="{! 'Similar Properties by ' + v.searchCriteria}">
         <aura:iteration items="{!v.similarProperties}" var="property" indexVar="i">
             <lightning:layout verticalAlign="center" class="row">

@@ -6,6 +6,8 @@
     
     <aura:registerEvent name="pagePrevious" type="c:PropertyPageChange"/>
     <aura:registerEvent name="pageNext" type="c:PropertyPageChange"/>
+
+    <c:rflibLoggerCmp aura:id="logger" name="PropertyPaginator" appendComponentId="false" />
     
     <div class="container">
         <div class="left">

@@ -13,6 +13,8 @@
         <aura:attribute name="max" type="Integer" />
     </aura:method>
     
+    <c:rflibLoggerCmp aura:id="logger" name="PriceRange" appendComponentId="false" />
+
     <div>
         <p class="slds-form-element__label">Price range</p>
         <div aura:id="slider" class="slider" />

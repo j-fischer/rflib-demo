@@ -9,6 +9,8 @@
 
     <aura:method name="clear" action="{!c.clear}"/>
 
+    <c:rflibLoggerCmp aura:id="logger" name="VoiceInput" appendComponentId="false" />
+
     <lightning:layout verticalAlign="center">
         <lightning:layoutItem flexibility="grow">
             <input aura:id="utterance" type="text" class="slds-input voice-input" placeholder="How can I assist you?" onkeypress="{!c.onKeyPress}" />

@@ -2,6 +2,8 @@
 
     <aura:registerEvent name="propertyFilterChange" type="c:PropertyFilterChange"/>
 
+    <c:rflibLoggerCmp aura:id="logger" name="VoiceInputCard" appendComponentId="true" />
+
     <div class="slds-card">
         <c:VoiceInput onchange="{!c.onChange}"></c:VoiceInput>
     </div>

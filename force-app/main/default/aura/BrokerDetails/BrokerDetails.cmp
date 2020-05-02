@@ -3,6 +3,8 @@
     <aura:attribute name="brokerFields" type="List" default="['Name', 'Phone__c', 'Mobile_Phone__c', 'Email__c']" />
     <aura:attribute name="property" type="Object"/>
 
+    <c:rflibLoggerCmp aura:id="logger" name="BrokerDetails" appendComponentId="false" />
+
     <force:recordData recordId="{!v.recordId}" fields="['Broker__c']" targetFields="{!v.property}"/>
 
     <lightning:card title="Broker Details" iconName="standard:avatar">

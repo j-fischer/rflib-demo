@@ -2,7 +2,9 @@
     
     <aura:attribute name="amortization" type="Object[]"/>
 
-	<aura:handler event="c:MortgageChange" action="{!c.mortgageChange}"/>
+    <aura:handler event="c:MortgageChange" action="{!c.mortgageChange}"/>
+    
+    <c:rflibLoggerCmp aura:id="logger" name="MortgageAmortizationChart" appendComponentId="false" />
     
     <table>
         <thead>

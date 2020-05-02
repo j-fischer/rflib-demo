@@ -7,6 +7,8 @@
     <aura:attribute name="recordId" type="Id" />
     <aura:attribute name="property" type="Property__c" />
 
+    <c:rflibLoggerCmp aura:id="logger" name="SmartHomeCard" appendComponentId="true" />
+
     <force:recordData recordId="{!v.recordId}" 
                       targetFields="{!v.property}" 
                       layoutType="FULL" />

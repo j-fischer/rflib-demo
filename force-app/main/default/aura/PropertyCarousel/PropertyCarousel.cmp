@@ -11,6 +11,8 @@
     <aura:handler name="init" value="{!this}" action="{!c.onInit}" />
     <aura:handler event="ltng:selectSObject" action="{!c.recordChangeHandler}"/>
 
+    <c:rflibLoggerCmp aura:id="logger" name="PropertyCarousel" appendComponentId="false" />
+
     <lightning:card title="{!v.property.Name}" iconName="custom:custom38">
         <aura:if isTrue="{!v.files.length > 0}">
             <lightning:carousel disableAutoRefresh="true">

@@ -19,6 +19,8 @@
     <aura:handler name="init" value="{!this}" action="{!c.onInit}" />
     <aura:handler event="c:PropertyFilterChange" action="{!c.onFilterChange}"/>
 
+    <c:rflibLoggerCmp aura:id="logger" name="PropertyListMap" appendComponentId="false" />
+
     <lightning:card>
         <div aura:id="map"></div>
     </lightning:card>

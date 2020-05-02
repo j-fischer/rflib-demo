@@ -3,6 +3,8 @@
     <aura:attribute name="tabIcons" type="Boolean" default="false"/>
     <aura:attribute name="demoMode" type="Boolean" default="true"/>
 
+    <c:rflibLoggerCmp aura:id="logger" name="SmartHome" appendComponentId="false" />
+
     <lightning:tabset >
         <lightning:tab >
             <aura:set attribute="label">

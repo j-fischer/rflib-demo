@@ -12,6 +12,8 @@
         <aura:attribute name="long" type="String" /> 
     </aura:method>
 
+    <c:rflibLoggerCmp aura:id="logger" name="Map" appendComponentId="false" />
+
     <div aura:id="map"></div>
     
 </aura:component>

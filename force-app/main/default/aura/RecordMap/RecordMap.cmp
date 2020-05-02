@@ -13,6 +13,8 @@
     <aura:attribute name="zoomLevel" type="Integer" default="4" />
     
     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <c:rflibLoggerCmp aura:id="logger" name="RecordMap" appendComponentId="false" />
     
     <force:recordData aura:id="service" 
                          recordId="{!v.dsRecordId}" 

@@ -6,6 +6,8 @@
 
     <aura:handler name="init" value="{!this}" action="{!c.onInit}" />
 
+    <c:rflibLoggerCmp aura:id="logger" name="SmartLocks" appendComponentId="false" />
+
     <div>
         <aura:iteration items="{!v.locks}" var="lock" indexVar="index">
             <lightning:layout horizontalAlign="center" verticalAlign="center" multipleRows="false">

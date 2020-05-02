@@ -1,7 +1,9 @@
 <aura:component implements="force:hasRecordId,flexipage:availableForAllPageTypes" access="global">
 
     <aura:attribute name="recordId" type="Id" />
-	<aura:attribute name="property" type="Property__c" />
+    <aura:attribute name="property" type="Property__c" />
+    
+    <c:rflibLoggerCmp aura:id="logger" name="PropertySummary" appendComponentId="true" />
 
     <force:recordData aura:id="service"
                       recordId="{!v.recordId}"
