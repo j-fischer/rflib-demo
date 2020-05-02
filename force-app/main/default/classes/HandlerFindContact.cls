@@ -1,6 +1,9 @@
 public with sharing class HandlerFindContact implements BotHandler {
     
+    private static final rflib_Logger LOGGER = rflib_LoggerUtil.getFactory().createBatchedLogger('HandlerFindContact');
+    
     public BotResponse handle(String utterance, String[] params, Map<String, String> session, String fileName, String fileContent) {
+        LOGGER.info('handle({0}, {1}, {2}, {3})', new Object[] { utterance, params, session, fileContent });
         String key = '%' + params[0] + '%';
         List<Contact> contacts = 
             [SELECT Id, Name, MobilePhone FROM Contact

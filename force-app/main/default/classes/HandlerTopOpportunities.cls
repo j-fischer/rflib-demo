@@ -1,6 +1,10 @@
 public with sharing class HandlerTopOpportunities implements BotHandler {
     
+    private static final rflib_Logger LOGGER = rflib_LoggerUtil.getFactory().createBatchedLogger('HandlerTopOpportunities');
+    
     public BotResponse handle(String utterance, String[] params, Map<String, String> session, String fileName, String fileContent) {
+        LOGGER.info('handle({0}, {1}, {2}, {3})', new Object[] { utterance, params, session, fileContent });
+        
         Integer qty = Integer.valueof(params[0]);
         List<Opportunity> opportunities = 
             [SELECT Id, Name, Amount, Probability, StageName, CloseDate FROM Opportunity where isClosed=false ORDER BY amount DESC LIMIT :qty];

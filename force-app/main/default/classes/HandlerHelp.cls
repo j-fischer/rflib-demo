@@ -1,6 +1,9 @@
 public with sharing class HandlerHelp implements BotHandler {
     
+    private static final rflib_Logger LOGGER = rflib_LoggerUtil.getFactory().createBatchedLogger('HandlerHelp');
+    
     public BotResponse handle(String utterance, String[] params, Map<String, String> session, String fileName, String fileContent) {
+        LOGGER.info('handle({0}, {1}, {2}, {3})', new Object[] { utterance, params, session, fileContent });
         
 		List<Bot_Command__c> commands = 
             [SELECT Id, Sample_Utterance__c FROM Bot_Command__c

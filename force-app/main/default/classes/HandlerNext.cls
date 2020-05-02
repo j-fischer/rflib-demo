@@ -1,6 +1,9 @@
 public with sharing class HandlerNext implements BotHandler {
     
+    private static final rflib_Logger LOGGER = rflib_LoggerUtil.getFactory().createBatchedLogger('HandlerNext');
+    
     public BotResponse handle(String utterance, String[] params, Map<String, String> session, String fileName, String fileContent) {
+        LOGGER.info('handle({0}, {1}, {2}, {3})', new Object[] { utterance, params, session, fileContent });
         
         List<Opportunity> opportunities = 
             [SELECT Id, Name, Amount, Probability, StageName, CloseDate FROM Opportunity WHERE isClosed=false ORDER BY amount DESC LIMIT 1];

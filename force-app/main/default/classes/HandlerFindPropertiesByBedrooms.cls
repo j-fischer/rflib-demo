@@ -1,5 +1,7 @@
 public with sharing class HandlerFindPropertiesByBedrooms implements BotHandler {
 
+    private static final rflib_Logger LOGGER = rflib_LoggerUtil.getFactory().createBatchedLogger('HandlerFindPropertiesByBedrooms');
+    
     private String formatCurrency(Decimal i) {
         if (i == null) return '0.00';
         i = Decimal.valueOf(Math.roundToLong(i * 100)) / 100;
@@ -8,6 +10,8 @@ public with sharing class HandlerFindPropertiesByBedrooms implements BotHandler 
     }
     
 	public BotResponse handle(String utterance, String[] params, Map<String, String> session, String fileName, String fileContent) {
+        LOGGER.info('handle({0}, {1}, {2}, {3})', new Object[] { utterance, params, session, fileContent });
+        
         if (params[0] == 'one') params[0] = '1';
         if (params[0] == 'two') params[0] = '2';
         if (params[0] == 'three') params[0] = '3';

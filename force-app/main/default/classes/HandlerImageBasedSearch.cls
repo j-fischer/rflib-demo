@@ -1,5 +1,7 @@
 public with sharing class HandlerImageBasedSearch implements BotHandler {
 
+    private static final rflib_Logger LOGGER = rflib_LoggerUtil.getFactory().createBatchedLogger('HandlerImageBasedSearch');
+    
     private String modelId = 'VNAIIMX543MNUEKPW6UWAJPKKY';
     
     private String formatCurrency(Decimal i) {
@@ -10,6 +12,7 @@ public with sharing class HandlerImageBasedSearch implements BotHandler {
     }
     
 	public BotResponse handle(String utterance, String[] params, Map<String, String> session, String fileName, String fileContent) {
+        LOGGER.info('handle({0}, {1}, {2}, {3})', new Object[] { utterance, params, session, fileContent });
         
         List<EinsteinVisionController.Prediction> predictions = EinsteinVisionController.predict('', fileContent, modelId);
         List<BotRecord> records = new List<BotRecord>();

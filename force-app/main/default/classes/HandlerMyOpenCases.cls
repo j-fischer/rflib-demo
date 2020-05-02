@@ -1,6 +1,9 @@
 public with sharing class HandlerMyOpenCases implements BotHandler {
     
+    private static final rflib_Logger LOGGER = rflib_LoggerUtil.getFactory().createBatchedLogger('HandlerMyOpenCases');
+    
     public BotResponse handle(String utterance, String[] params, Map<String, String> session, String fileName, String fileContent) {
+        LOGGER.info('handle({0}, {1}, {2}, {3})', new Object[] { utterance, params, session, fileContent });
         
         List<Case> cases = 
             [SELECT Id, CaseNumber, Subject, Status, Priority, Contact.Id, Contact.Name 
