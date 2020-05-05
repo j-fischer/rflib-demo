@@ -4,13 +4,13 @@ public with sharing class LIFXController {
 
     @AuraEnabled
     public static String getLights() {
-        HttpRequest req = new HttpRequest();
-        Http http = new Http();
+        rflib_HttpRequest req = new rflib_HttpRequest();
+        
         req.setMethod('GET');    
         req.setHeader('Authorization', 'Bearer ' + settings.LIFX_TOKEN__C);
         req.setEndpoint(settings.LIFX_URL__C + '/all');
 		try {
-            HTTPResponse res = http.send(req);
+            HTTPResponse res = req.send();
 			return res.getBody();        	
         } catch(Exception ex){
             return '{"error": "' + ex.getMessage() + '"}';
@@ -28,15 +28,15 @@ public with sharing class LIFXController {
     }
 
     public static String setState(String lightId, String state) {
-        HttpRequest req = new HttpRequest();
-        Http http = new Http();
+        rflib_HttpRequest req = new rflib_HttpRequest();
+        
         req.setMethod('PUT');    
         req.setEndpoint(settings.LIFX_URL__C + '/' + lightId + '/state');
         req.setHeader('Authorization', 'Bearer ' + settings.LIFX_TOKEN__C);
         req.setHeader('Content-Type', 'application/json');
         req.setBody(state);
 		try {
-            HTTPResponse res = http.send(req);
+            HTTPResponse res = req.send();
 			return res.getBody();        	
         } catch(Exception ex){
             return '{"error": "' + ex.getMessage() + '"}';

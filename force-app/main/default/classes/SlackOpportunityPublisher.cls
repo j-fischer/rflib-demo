@@ -27,14 +27,14 @@ public with sharing class SlackOpportunityPublisher {
         }
         
         public void execute(System.QueueableContext ctx) {
-            HttpRequest req = new HttpRequest();
+            rflib_HttpRequest req = new rflib_HttpRequest();
             req.setMethod(method);
             req.setBody(body);
-            Http http = new Http();
+            
             HttpResponse res;
             if (!Test.isRunningTest()) {
 	            req.setEndpoint(url);
-            	res = http.send(req);
+            	res = req.send();
             }
         }
 
