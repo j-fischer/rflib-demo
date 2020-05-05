@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Properties_only_listed_in_last_15_days</fullName>
+    <active>true</active>
+    <errorConditionFormula>TODAY() - Date_Listed__c &gt; 15</errorConditionFormula>
+    <errorMessage>Your property is too old to be listed.</errorMessage>
+</ValidationRule>
