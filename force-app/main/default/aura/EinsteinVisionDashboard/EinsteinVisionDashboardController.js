@@ -8,6 +8,8 @@
     },
 
     onCreateDataset: function(component, event, helper) {
+        var logger = component.find('logger');
+
         var action = component.get("c.createDataset"); 
         action.setParams({
             pathToZip: component.get("v.pathToZip")
@@ -15,7 +17,7 @@
         action.setCallback(this, function(response) {
             component.set("v.waiting", false);
             var state = response.getState();
-            console.log(state);
+            logger.info(state);
             if (state === 'ERROR') {
                 var errors = response.getError();
                 if (errors) {
@@ -23,7 +25,7 @@
                         return alert(errors[0].message);
                     }
                 } else {
-                    return console.log("Unknown error");
+                    return logger.info("Unknown error");
                 }
             }
             var result = response.getReturnValue();

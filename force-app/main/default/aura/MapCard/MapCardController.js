@@ -8,7 +8,8 @@
 	},
 
     fullScreen : function(component) {
-        console.log(component.get("v.property"));
+        var logger = component.find('logger');
+        logger.info(component.get("v.property"));
         component.set("v.fullScreen", true);
 		var sObject = component.get("v.sObject");
         if (sObject) {
@@ -22,7 +23,8 @@
 	},
 
   	recordChangeHandler : function(component, event) {
-        console.log('recordChangeHandler');
+        var logger = component.find('logger');
+        logger.info('recordChangeHandler');
         var id = event.getParam("recordId");
         component.set("v.dsRecordId", id);
         var service = component.find("service");
@@ -30,7 +32,8 @@
 	},
 
   	onRecordUpdated : function(component, event) {
-        console.log('onRecordUpdated');
+        var logger = component.find('logger');
+        logger.info('onRecordUpdated');
         var sObject = component.get("v.sObject");
         if (sObject) {
 	        component.set("v.title", sObject[component.get("v.titleField")]);

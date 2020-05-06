@@ -10,7 +10,7 @@
     },
 
     onDrop: function(component, event, helper) {
-        console.log('ondrop: ' + new Date());
+        logger.info('ondrop: ' + new Date());
 		event.stopPropagation();
         event.preventDefault();
         event.dataTransfer.dropEffect = 'copy';

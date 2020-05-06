@@ -1,11 +1,13 @@
 ({
     readFile: function (component, helper, file) {
+        var logger = component.find('logger');
+
         if (!file.type.match(/(image.*)/)) {
             return alert('Image file not supported');
         }
         var reader = new FileReader();
         reader.onloadend = function () {
-            console.log('readfile onloadend: ' + new Date());
+            logger.info('readfile onloadend: ' + new Date());
             var dataURL = reader.result;
             component.set("v.pictureSrc", dataURL);
             //helper.upload(component, file, dataURL.match(/,(.*)$/)[1]);
@@ -15,7 +17,9 @@
     },
 
     upload: function (component, file, base64Data) {
-        console.log('upload: ' + new Date());
+        var logger = component.find('logger');
+
+        logger.info('upload: ' + new Date());
         var action = component.get("c.predict");
         var modelId = component.get("v.modelId");
         action.setParams({
@@ -24,11 +28,11 @@
             modelId: modelId
         });
         action.setCallback(this, function (a) {
-            console.log('upload callback: ' + new Date());
+            logger.info('upload callback: ' + new Date());
             component.set("v.waiting", false);
             var state = a.getState();
             if (state === 'ERROR') {
-                console.log(a.getError());
+                logger.info(a.getError());
                 alert("An error has occurred");
             }
             var result = a.getReturnValue();
@@ -54,6 +58,8 @@
     },
 
     simulateUpload: function (component, file, base64Data) {
+        var logger = component.find('logger');
+        
         component.set("v.waiting", true);
         window.setTimeout(
             $A.getCallback(function () {
@@ -78,7 +84,7 @@
                         { label: "victorian", formattedProbability: "2.1%" },
                     ];
                 }
-                console.log(predictions);
+                logger.info(predictions);
                 component.set("v.predictions", predictions);
                 var predictionEvent = component.getEvent("onPrediction");
                 predictionEvent.setParams({

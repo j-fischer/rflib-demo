@@ -1,18 +1,21 @@
 ({
 	getDatasets : function(component) {
+        var logger = component.find('logger');
+
         var action = component.get("c.getDatasets"); 
         action.setCallback(this, function(response) {
             component.set("v.waiting", false);
             var state = response.getState();
-            console.log(state);
+            logger.info('getDatasets completed: state= ' + state);
             if (state === 'ERROR') {
                 var errors = response.getError();
                 if (errors) {
+                    logger.error("Error: " + JSON.stringify(errors))
                     if (errors[0] && errors[0].message) {
                         return alert(errors[0].message);
                     }
                 } else {
-                    return console.log("Unknown error");
+                    return logger.error("Unknown error");
                 }
             }
             var result = response.getReturnValue();

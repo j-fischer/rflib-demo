@@ -17,7 +17,9 @@
     },
     
     onLabelsTab: function(component, event, helper) {
-        console.log(JSON.stringify(component.get("v.dataset")));
+        var logger = component.find('logger');
+
+        logger.info(JSON.stringify(component.get("v.dataset")));
         component.set('v.currentTab', 'labels');
     },
 
@@ -26,6 +28,8 @@
     },
 
     onDeleteDataset: function(component, event, helper) {
+        var logger = component.find('logger');
+
         var action = component.get("c.deleteDataset"); 
         action.setParams({
             datasetId: component.get("v.dataset").id
@@ -34,7 +38,7 @@
             var changeEvent = component.getEvent("onchange");
             changeEvent.fire();
             var state = response.getState();
-            console.log(state);
+            logger.info(state);
             if (state === 'ERROR') {
                 var errors = response.getError();
                 if (errors) {
@@ -42,16 +46,18 @@
                         alert("Error message: " + errors[0].message);
                     }
                 } else {
-                    console.log("Unknown error");
+                    logger.info("Unknown error");
                 }
             }
             var result = response.getReturnValue();
-            console.log(result);
+            logger.info(result);
         });
         $A.enqueueAction(action); 
     },
     
     onTrainModel: function(component, event, helper) {
+        var logger = component.find('logger');
+
         var action = component.get("c.trainModel"); 
         var dataset = component.get("v.dataset");
         action.setParams({
@@ -60,7 +66,7 @@
         });
         action.setCallback(this, function(response) {
             var state = response.getState();
-            console.log(state);
+            logger.info(state);
             if (state === 'ERROR') {
                 var errors = response.getError();
                 if (errors) {
@@ -68,12 +74,12 @@
                         alert("Error message: " + errors[0].message);
                     }
                 } else {
-                    console.log("Unknown error");
+                    logger.info("Unknown error");
                 }
             }
             
             var result = response.getReturnValue();
-            console.log(result);
+            logger.info(result);
             //alert("Started training model");
         });
         $A.enqueueAction(action); 

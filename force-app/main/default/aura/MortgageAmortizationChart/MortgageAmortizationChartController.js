@@ -1,5 +1,8 @@
 ({
 	mortgageChange : function(component, event) {
+        var logger = component.find('logger');
+        logger.info('mortgageChange');
+
         var principal = event.getParam("principal");
         var years = event.getParam("years");
         var rate = event.getParam("rate");
@@ -19,6 +22,8 @@
             }
             amortization.push({principalY: Math.round(principalY), interestY: Math.round(interestY), balance: Math.round(balance)});
         }
+
+        logger.info('mortgageChange: amortization=' + JSON.stringify(amortization));
         component.set("v.amortization", amortization);
 	}
 })

@@ -10,7 +10,7 @@
         component.set("v.messages", messages);
         helper.submit(component, utterance, component.get('v.session'), null, null, function(answer) {
             if (answer) {
-                console.log(answer);
+                logger.info(answer);
                 component.set("v.session", answer.session);
                 Array.prototype.push.apply(messages, answer.messages);
                 component.set("v.messages", messages);
@@ -34,7 +34,7 @@
         component.set("v.messages", messages);
         helper.submit(component, utterance, component.get('v.session'), null, null, function(answer) {
             if (answer) {
-                console.log(answer);
+                logger.info(answer);
                 component.set("v.session", answer.session);
                 Array.prototype.push.apply(messages, answer.messages);
                 component.set("v.messages", messages);
@@ -64,7 +64,7 @@
 	        	component.set("v.messages", messages);
 				helper.submit(component, utterance, component.get('v.session'), file.name, content, function(answer) {
                     if (answer) {
-                        console.log(answer);
+                        logger.info(answer);
                         component.set("v.session", answer.session);
                         Array.prototype.push.apply(messages, answer.messages);
                         component.set("v.messages", messages);

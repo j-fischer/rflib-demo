@@ -1,5 +1,7 @@
 ({
     fireFilterChangeEvent : function(component) {
+        var logger = component.find('logger');
+        
         var filterChangeEvent = $A.get("e.c:PropertyFilterChange");
         filterChangeEvent.setParams({
             "searchKey": component.get("v.searchKey"),
@@ -9,6 +11,9 @@
             "numberBathrooms": component.get("v.numberBathrooms"),
             "visualSearchKey": component.get("v.visualSearchKey"),
         });
+        
+        logger.info('fireFilterChangeEvent: params=' + JSON.stringify(filterChangeEvent.getParams()));
+
         filterChangeEvent.fire();
     }
 })

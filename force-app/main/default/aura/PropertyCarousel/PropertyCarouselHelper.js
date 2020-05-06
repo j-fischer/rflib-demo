@@ -1,6 +1,10 @@
 ({
     loadPictures : function(component) {
+        var logger = component.find('logger');
+        
         var propertyId = component.get("v.recordId");
+        logger.info('Loading pictures for property with id=' + propertyId);
+        
         component.set("v.files", []);
         if (!propertyId) {
             return;

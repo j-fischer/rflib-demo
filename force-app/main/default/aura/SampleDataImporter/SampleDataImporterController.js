@@ -1,5 +1,7 @@
 ({
     importData : function(component, event, helper) {
+        var logger = component.find('logger');
+
         var action = component.get("c.importSampleData");
         component.set("v.showSpinner", true);
         action.setCallback(this, function (response) {
@@ -12,7 +14,7 @@
                     "message": "Sample data successfully imported.",
                 });
             } else {
-                console.log(response.getError());
+                logger.info(response.getError());
                 component.find('notifLib').showToast({
                     "variant": "error",
                     "header": "Error",

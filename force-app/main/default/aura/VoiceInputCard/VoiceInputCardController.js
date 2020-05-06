@@ -1,9 +1,12 @@
 ({
     onChange : function(component, event, helper) {
+        var logger = component.find('logger');
+        
         var utterance = event.getParam('value');
         var regex = /([A-Za-z0-9]*) bedrooms in ([A-Za-z]*)/i;
         var result = utterance.match(regex);
-        console.log(result);
+        
+        logger.info('onChange: utterance={0}, result={1}', [utterance, result]);
         if (result && result.length > 0) {
             var bedrooms = result[1];
             if (bedrooms == 'one') bedrooms = 1;
