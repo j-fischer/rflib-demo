@@ -16,10 +16,10 @@
             pageSize: pageSize,
             pageNumber: pageNumber || 1,
         });
-        logger.info('getProperties: startTime={0}, params={1}', [startTime, action.getParams()] );
+        logger.info('getProperties: startTime={0}, params={1}', [startTime, JSON.stringify(action.getParams())] );
         action.setCallback(this, function (response) {
             var page = response.getReturnValue();
-            logger.info('Page {0} loaded in {1}ms, properties={2}', [page.pageNumber, performance.now() - startTime, page.properties]);
+            logger.info('Page {0} loaded in {1}ms, properties={2}', [page.pageNumber, performance.now() - startTime, JSON.stringify(page.properties)]);
             component.set('v.properties', page.properties);
             component.set('v.pageNumber', page.pageNumber);
             component.set('v.total', page.total);
