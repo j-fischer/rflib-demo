@@ -10,13 +10,10 @@
         component.set("v.messages", messages);
         helper.submit(component, utterance, component.get('v.session'), null, null, function(answer) {
             if (answer) {
-                logger.info(answer);
+                logger.info("Answer: " + answer);
                 component.set("v.session", answer.session);
                 Array.prototype.push.apply(messages, answer.messages);
                 component.set("v.messages", messages);
-                // if (answer && answer.messages && answer.messages[0] && answer.messages[0].records && answer.messages[0].records[0].fields && answer.messages[0].records[0].fields[0] && answer.messages[0].records[0].fields[0].linkURL) {
-                //     window.open(answer.messages[0].records[0].fields[0].linkURL, '_self'); 
-                // }
             }
         });
         component.find("voiceInput").clear();

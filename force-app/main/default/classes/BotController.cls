@@ -1,19 +1,19 @@
 public with sharing class BotController {
-
+    
     private static final rflib_Logger LOGGER = rflib_LoggerUtil.getFactory().createBatchedLogger('BotController');
-
+    
     class HandlerMapping {
         
         public String handlerClassName;
         public Pattern utterancePattern;
-
+        
         public HandlerMapping(String handlerClassName, String patternStr) {
             this.handlerClassName = handlerClassName;
             this.utterancePattern = Pattern.compile(patternStr);
         }
-
+        
     }
-
+    
     static List<HandlerMapping> handlerMappings;
     
     static {
@@ -21,15 +21,16 @@ public with sharing class BotController {
         LOGGER.info('Bot commands: ' + commands);
         List<HandlerMapping> mappings = new List<HandlerMapping>();
         for (Bot_Command__c command : commands) {
-			mappings.add(new HandlerMapping(command.apex_class__c, command.pattern__c));
+            mappings.add(new HandlerMapping(command.apex_class__c, command.pattern__c));
         }
         handlerMappings = mappings;
     }
     
+
     @AuraEnabled
     public static BotResponse submit(String utterance, Map<String, String> session, String fileName, String fileContent) {
-        LOGGER.info('submit({0}, {1})', new Object[] { utterance, fileName});
         try {
+            LOGGER.info('submit({0}, {1})', new Object[] { utterance, fileName});
             
             if (session != null) {
                 String nextCommand = session.get('nextCommand');
@@ -61,8 +62,9 @@ public with sharing class BotController {
         } catch (Exception e) {
             LOGGER.error('Failed to handle bot submission', e);                
             return new BotResponse(new BotMessage('Bot', 'Oops, something went wrong invoking that command'));
+        } finally {
+            LOGGER.publishBatchedLogEvents();
         }
-        
     }
     
 }
