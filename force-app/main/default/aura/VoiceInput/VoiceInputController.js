@@ -95,7 +95,7 @@
 
     onKeyPress : function(component, event, helper) {
         var logger = component.find('logger');
-        logger.info('onKeyPress: keyCode=' + event.keyCode);
+        logger.info('onKeyPress: keyCode={0}, key={1}', [event.keyCode, event.key]);
 
         if (event.keyCode !== 13) {
             return;
