@@ -10,11 +10,11 @@
         component.set("v.messages", messages);
         helper.submit(component, utterance, component.get('v.session'), null, null, function(answer) {
             if (answer) {
-                logger.info("Answer: " + answer);
+                logger.info("Answer: " + JSON.stringify(answer));
                 component.set("v.session", answer.session);
                 Array.prototype.push.apply(messages, answer.messages);
                 component.set("v.messages", messages);
-            }
+            } 
         });
         component.find("voiceInput").clear();
 	},
