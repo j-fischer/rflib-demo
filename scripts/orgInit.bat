@@ -7,7 +7,7 @@ cd ..\rflib
 sfdx force:source:push -u rflib_demo
 sfdx force:user:permset:assign -u rflib_demo -n rflib_Ops_Center_Access
 
-cd ..\rflib_demo
+cd ..\rflib-demo
 
 sfdx force:source:push
 sfdx force:user:permset:assign -n dreamhouse
