@@ -20,12 +20,11 @@
                 if (errors) {
                     if (errors[0] && errors[0].message) {
                         logger.fatal(errors[0].message);
-                        alert("Error message: " + errors[0].message);
                     } else {
-                        logger.fatal(errors);
+                        logger.fatal(JSON.stringify(errors));
                     }
                 } else {
-                    console.fatal("Unknown error");
+                    logger.fatal("Unknown error");
                 }
             } else if (state === "INCOMPLETE") {
 				console.fatal("Incomplete");
