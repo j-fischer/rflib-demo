@@ -59,7 +59,7 @@ public with sharing class BotController {
             LOGGER.warn('No handler found');
             throw new AuraHandledException('I don\'t know how to answer that');
         } catch (Exception e) {
-            LOGGER.error('Failed to handle bot submission', e);  
+            LOGGER.fatal('Failed to handle bot submission', e);  
             throw new AuraHandledException('Oops, something went wrong invoking that command');              
         } finally {
             LOGGER.publishBatchedLogEvents();
