@@ -2,6 +2,7 @@
     "orgName": "Dreamhouse",
     "edition": "Developer",
     "hasSampleData": "false",
+    "features": ["TransactionFinalizers"],
     "settings": {
         "lightningExperienceSettings": {
             "enableS1DesktopEnabled": true
