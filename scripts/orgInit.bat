@@ -1,16 +1,17 @@
 @ECHO OFF
 
-sfdx force:org:create -a rflib_demo -s -f config/project-scratch-def.json -d 30
+call sfdx force:org:create -a rflib_demo -s -f config/project-scratch-def.json -d 30
 
 cd ..\rflib
 
-sfdx force:source:push -u rflib_demo
-sfdx force:user:permset:assign -u rflib_demo -n rflib_Ops_Center_Access
+call sfdx force:source:push -u rflib_demo
+call sfdx force:user:permset:assign -u rflib_demo -n rflib_Ops_Center_Access
+call sfdx force:user:permset:assign -u rflib_demo -n rflib_Enable_Client_Logging
 
 cd ..\rflib-demo
 
-sfdx force:source:push
-sfdx force:user:permset:assign -n dreamhouse
+call sfdx force:source:push
+call sfdx force:user:permset:assign -n dreamhouse
 
-sfdx force:org:open -p /lightning/page/home
+call sfdx force:org:open -p /lightning/page/home
 echo "Org is set up"
