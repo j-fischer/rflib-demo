@@ -13,5 +13,7 @@ cd ..\rflib-demo
 call sfdx force:source:push
 call sfdx force:user:permset:assign -n dreamhouse
 
+call sfdx force:apex:execute -f apex\resetCustomSettings.apex
+
 call sfdx force:org:open -p /lightning/page/home
 echo "Org is set up"
