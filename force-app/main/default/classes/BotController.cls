@@ -1,6 +1,6 @@
 public with sharing class BotController {
     
-    private static final rflib_Logger LOGGER = rflib_LoggerUtil.getFactory().createBatchedLogger('BotController');
+    private static final rflib_Logger LOGGER = rflib_LoggerUtil.getFactory().createLogger('BotController');
     
     class HandlerMapping {
         
@@ -29,6 +29,7 @@ public with sharing class BotController {
 
     @AuraEnabled
     public static BotResponse submit(String utterance, Map<String, String> session, String fileName, String fileContent) {
+        rflib_LogTimer logTimer = rflib_LoggerUtil.startLogTimer(LOGGER, 300, 'Handle Bot Request');
         try {
             LOGGER.info('submit({0}, {1})', new Object[] { utterance, fileName});
             
@@ -62,7 +63,7 @@ public with sharing class BotController {
             LOGGER.fatal('Failed to handle bot submission', e);  
             throw new AuraHandledException('Oops, something went wrong invoking that command');              
         } finally {
-            LOGGER.publishBatchedLogEvents();
+            logTimer.done();
         }
     }
     

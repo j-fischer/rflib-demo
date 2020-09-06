@@ -8,6 +8,8 @@
         
         messages.push({author: "Me", messageText: utterance});
         component.set("v.messages", messages);
+
+        var logTimer = component.find('loggerFactory').startLogTimer(logger, '300', 'Bot command submission');
         helper.submit(component, utterance, component.get('v.session'), null, null, function(answer) {
             if (answer) {
                 logger.info("Answer: " + JSON.stringify(answer));
@@ -15,6 +17,7 @@
                 Array.prototype.push.apply(messages, answer.messages);
                 component.set("v.messages", messages);
             } 
+            logTimer.done();
         });
         component.find("voiceInput").clear();
 	},

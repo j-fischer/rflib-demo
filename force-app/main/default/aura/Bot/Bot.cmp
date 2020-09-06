@@ -6,6 +6,7 @@
     <aura:attribute name="height" type="String" default="500px"/>
     <aura:attribute name="files" type="Object[]"/>
     
+    <c:rflibLogger aura:id="loggerFactory" />
     <c:rflibLoggerCmp aura:id="logger" name="Bot" appendComponentId="false" />
 
     <div style="{#'height: '+v.height}" class="slds-p-vertical_x-small">
