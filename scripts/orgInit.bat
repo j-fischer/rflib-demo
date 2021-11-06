@@ -16,4 +16,8 @@ call sfdx force:user:permset:assign -n dreamhouse
 call sfdx force:apex:execute -f apex\resetCustomSettings.apex
 
 call sfdx force:org:open -p /lightning/page/home
+
+echo "Installing Big Object Utility"
+call sfdx force:package:install --package 04t7F000003irldQAA -u rflib_demo -w 10
+
 echo "Org is set up"
