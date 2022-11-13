@@ -1,5 +1,6 @@
 .classpath
 .DS_Store
+.sf
 .sfdx
 .project
 .salesforce
@@ -8,3 +9,5 @@
 .tern-project
 .settings
 IlluminatedCloud/
+
+package-lock.json
