@@ -2,7 +2,7 @@
 
 cd ..\rflib
 
-call sfdx force:source:push -u rflib_demo
+call sfdx force:source:push -u rflib_demo -f
 
 cd ..\rflib-demo
 
