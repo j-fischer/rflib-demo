@@ -3,6 +3,15 @@ public with sharing class SampleDataController {
     private static final rflib_Logger LOGGER = rflib_LoggerUtil.getFactory().createLogger('SampleDataController');
 
     @AuraEnabled
+    public static void importSampleDataAsync() {
+        rflib_Retryable_Action__e action = new rflib_Retryable_Action__e();
+        action.Action__c = 'AsyncDataImport';
+        
+        LOGGER.info('Publishing AsyncDataImport action: ' + action);
+        EventBus.publish(action);
+    }
+
+    @AuraEnabled
     public static void importSampleData() {
         try {
             LOGGER.info('importSampleData()');
