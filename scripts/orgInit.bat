@@ -20,4 +20,6 @@ call sfdx force:org:open -p /lightning/page/home
 echo "Installing Big Object Utility"
 call sfdx force:package:install --package 04t7F000003irldQAA -u rflib_demo -w 10
 
+call sfdx force:source:tracking:reset -p
+
 echo "Org is set up"
