@@ -8,6 +8,7 @@
     
     <c:rflibLogger aura:id="loggerFactory" />
     <c:rflibLoggerCmp aura:id="logger" name="Bot" appendComponentId="false" />
+    <c:rflibApplicationEventLogger aura:id="applicationEventLogger" />
 
     <div style="{#'height: '+v.height}" class="slds-p-vertical_x-small">
 		<div aura:id="content" class="content">

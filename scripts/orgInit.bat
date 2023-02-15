@@ -7,6 +7,7 @@ cd ..\rflib
 call sfdx force:source:push -u rflib_demo
 call sfdx force:user:permset:assign -u rflib_demo -n rflib_Ops_Center_Access
 call sfdx force:user:permset:assign -u rflib_demo -n rflib_Enable_Client_Logging
+call sfdx force:user:permset:assign -u rflib_demo -n rflib_Create_Application_Event
 
 cd ..\rflib-demo
 
