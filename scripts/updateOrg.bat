@@ -2,14 +2,14 @@
 
 cd ..\rflib
 
-call sfdx force:source:push -u rflib_demo -f
+call sf project deploy start -o rflib_demo --ignore-conflicts
 
 cd ..\rflib-demo
 
-call sfdx force:source:push -f
+call sf project deploy start --ignore-conflicts
 
-call sfdx force:apex:execute -f apex\resetCustomSettings.apex
+call sf apex execute -f apex\resetCustomSettings.apex
 
-call sfdx force:source:tracking:reset -p
+call sf project reset tracking -p
 
 echo "Org is up-to-date"
