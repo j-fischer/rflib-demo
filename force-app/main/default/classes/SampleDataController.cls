@@ -2,11 +2,15 @@ public with sharing class SampleDataController {
 
     private static final rflib_Logger LOGGER = rflib_LoggerUtil.getFactory().createLogger('SampleDataController');
 
+    private static final rflib_ApplicationEventLogger appLogger = rflib_LoggerUtil.getApplicationEventLogger();
+
     @AuraEnabled
     public static void importSampleDataAsync() {
         rflib_Retryable_Action__e action = new rflib_Retryable_Action__e();
         action.Action__c = 'AsyncDataImport';
         
+        appLogger.logApplicationEvent('import-sample-data-async', null, null);
+
         LOGGER.info('Publishing AsyncDataImport action: ' + action);
         EventBus.publish(action);
     }
@@ -14,6 +18,8 @@ public with sharing class SampleDataController {
     @AuraEnabled
     public static void importSampleData() {
         try {
+            appLogger.logApplicationEvent('import-sample-data', null, null);
+
             LOGGER.info('importSampleData()');
 
             LOGGER.info('Deleting Bot_Command__c records');
@@ -47,6 +53,7 @@ public with sharing class SampleDataController {
             insert properties;
         } catch (Exception ex) {
             LOGGER.fatal('Failed to import sample data: ', ex);
+            appLogger.logApplicationEvent('import-sample-data-failed', null, null);
             throw ex;
         }        
     }
