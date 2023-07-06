@@ -30,9 +30,26 @@
         </inputParameters>
     </actionCalls>
     <actionCalls>
+        <name>FS_Postal_Code_Enabled</name>
+        <label>FS Postal Code Enabled</label>
+        <locationX>864</locationX>
+        <locationY>1214</locationY>
+        <actionName>rflib_GetFeatureSwitchValueAction</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Check_If_Postal_Code_Verification_Is_Enabled</targetReference>
+        </connector>
+        <inputParameters>
+            <name>name</name>
+            <value>
+                <stringValue>Verify_Identify_Postal_Code_Check_Enabled</stringValue>
+            </value>
+        </inputParameters>
+    </actionCalls>
+    <actionCalls>
         <name>Log_Event_Verify_Identity_Invoked</name>
         <label>Log Event Verify Identity Invoked</label>
-        <locationX>281</locationX>
+        <locationX>319</locationX>
         <locationY>350</locationY>
         <actionName>rflib_ApplicationEventLoggerAction</actionName>
         <actionType>apex</actionType>
@@ -102,12 +119,9 @@
         <name>Log_Event_Verify_Identity_No_Postal</name>
         <label>Log Event Verify Identity - Postal Code Not Found</label>
         <locationX>578</locationX>
-        <locationY>1430</locationY>
+        <locationY>1646</locationY>
         <actionName>rflib_ApplicationEventLoggerAction</actionName>
         <actionType>apex</actionType>
-        <connector>
-            <targetReference>birthdate_postal_not_found_screen</targetReference>
-        </connector>
         <inputParameters>
             <name>eventName</name>
             <value>
@@ -124,8 +138,8 @@
     <actionCalls>
         <name>Log_Event_Verify_Identity_Success</name>
         <label>Log Event Verify Identity - Success</label>
-        <locationX>842</locationX>
-        <locationY>1538</locationY>
+        <locationX>864</locationX>
+        <locationY>2138</locationY>
         <actionName>rflib_ApplicationEventLoggerAction</actionName>
         <actionType>apex</actionType>
         <connector>
@@ -147,7 +161,7 @@
     <actionCalls>
         <name>Log_Flow_Invoked</name>
         <label>Log Flow Invoked</label>
-        <locationX>281</locationX>
+        <locationX>319</locationX>
         <locationY>134</locationY>
         <actionName>rflib_LoggerFlowAction</actionName>
         <actionType>apex</actionType>
@@ -176,7 +190,7 @@
     <assignments>
         <name>Assign_Stage_1</name>
         <label>Assign Stage 1</label>
-        <locationX>281</locationX>
+        <locationX>319</locationX>
         <locationY>242</locationY>
         <assignmentItems>
             <assignToReference>$Flow.CurrentStage</assignToReference>
@@ -192,7 +206,7 @@
     <assignments>
         <name>Assign_Stage_2</name>
         <label>Assign Stage 2</label>
-        <locationX>512</locationX>
+        <locationX>589</locationX>
         <locationY>782</locationY>
         <assignmentItems>
             <assignToReference>$Flow.CurrentStage</assignToReference>
@@ -208,7 +222,7 @@
     <assignments>
         <name>Assign_Stage_3</name>
         <label>Assign Stage 3</label>
-        <locationX>710</locationX>
+        <locationX>864</locationX>
         <locationY>1106</locationY>
         <assignmentItems>
             <assignToReference>$Flow.CurrentStage</assignToReference>
@@ -218,14 +232,14 @@
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Verify_Postcode_Screen</targetReference>
+            <targetReference>FS_Postal_Code_Enabled</targetReference>
         </connector>
     </assignments>
     <assignments>
         <name>Assign_Stage_4</name>
         <label>Assign Stage 4</label>
-        <locationX>842</locationX>
-        <locationY>1430</locationY>
+        <locationX>864</locationX>
+        <locationY>2030</locationY>
         <assignmentItems>
             <assignToReference>$Flow.CurrentStage</assignToReference>
             <operator>Assign</operator>
@@ -238,9 +252,34 @@
         </connector>
     </assignments>
     <decisions>
+        <name>Check_If_Postal_Code_Verification_Is_Enabled</name>
+        <label>Check If Postal Code Verification Is Enabled</label>
+        <locationX>864</locationX>
+        <locationY>1322</locationY>
+        <defaultConnector>
+            <targetReference>Assign_Stage_4</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Verification Disabled</defaultConnectorLabel>
+        <rules>
+            <name>Verification_Enabled</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>FS_Postal_Code_Enabled.isTurnedOn</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Verify_Postcode_Screen</targetReference>
+            </connector>
+            <label>Verification Enabled</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>Does_birthdate_exist</name>
         <label>Does birthdate exist</label>
-        <locationX>512</locationX>
+        <locationX>589</locationX>
         <locationY>998</locationY>
         <defaultConnector>
             <targetReference>Assign_Stage_3</targetReference>
@@ -265,7 +304,7 @@
     <decisions>
         <name>Does_Contact_Exist</name>
         <label>Does Contact Exist</label>
-        <locationX>281</locationX>
+        <locationX>319</locationX>
         <locationY>674</locationY>
         <defaultConnector>
             <targetReference>Assign_Stage_2</targetReference>
@@ -291,7 +330,7 @@
         <name>Does_postal_exist</name>
         <label>Does postal exist</label>
         <locationX>710</locationX>
-        <locationY>1322</locationY>
+        <locationY>1538</locationY>
         <defaultConnector>
             <targetReference>Assign_Stage_4</targetReference>
         </defaultConnector>
@@ -335,7 +374,7 @@
     <recordLookups>
         <name>Contact_Lookup_by_Name</name>
         <label>Contact Lookup by Name</label>
-        <locationX>281</locationX>
+        <locationX>319</locationX>
         <locationY>566</locationY>
         <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -374,8 +413,8 @@
     <screens>
         <name>birthdate_postal_not_found_screen</name>
         <label>Name Not Found</label>
-        <locationX>512</locationX>
-        <locationY>2030</locationY>
+        <locationX>314</locationX>
+        <locationY>1214</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>true</allowPause>
@@ -439,8 +478,8 @@
     <screens>
         <name>Success_Screen</name>
         <label>Identity Verified</label>
-        <locationX>842</locationX>
-        <locationY>1646</locationY>
+        <locationX>864</locationX>
+        <locationY>2246</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>true</allowPause>
@@ -473,7 +512,7 @@
     <screens>
         <name>Verify_Birthdate_Screen</name>
         <label>Verify Birthdate</label>
-        <locationX>512</locationX>
+        <locationX>589</locationX>
         <locationY>890</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
@@ -526,7 +565,7 @@
     <screens>
         <name>Verify_Name_Screen</name>
         <label>Verify Name</label>
-        <locationX>281</locationX>
+        <locationX>319</locationX>
         <locationY>458</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
@@ -578,7 +617,7 @@
         <name>Verify_Postcode_Screen</name>
         <label>Verify Postal Code</label>
         <locationX>710</locationX>
-        <locationY>1214</locationY>
+        <locationY>1430</locationY>
         <allowBack>true</allowBack>
         <allowFinish>true</allowFinish>
         <allowPause>true</allowPause>
@@ -720,5 +759,15 @@
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>var_PostCodeCheckEnabled</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
     </variables>
 </Flow>
