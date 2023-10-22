@@ -1,6 +1,6 @@
 @ECHO OFF
 
-call sf force org create -a rflib_demo -s -f config/project-scratch-def.json -d 30
+call sf org create scratch -a rflib_demo -s -f config/project-scratch-def.json -y 30
 
 cd ..\rflib
 
@@ -19,7 +19,7 @@ call sf apex execute -f apex\resetCustomSettings.apex
 call sf org open -p /lightning/page/home
 
 echo "Installing Big Object Utility"
-call sf package install --package 04t7F000003irldQAA -u rflib_demo -w 10
+call sf package install --package 04t7F000003irldQAA -o rflib_demo -w 10
 
 call sf project reset tracking -p
 
