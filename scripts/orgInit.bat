@@ -1,6 +1,6 @@
 @ECHO OFF
 
-call sf org create scratch -a rflib_demo -s -f config/project-scratch-def.json -y 30
+call sf org create scratch -a rflib_demo -d -f config/project-scratch-def.json -y 30
 
 cd ..\rflib
 
