@@ -10,6 +10,7 @@
         <connector>
             <targetReference>Log_Event_Verify_Identity_No_Name</targetReference>
         </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
             <name>context</name>
             <value>
@@ -28,6 +29,8 @@
                 <stringValue>No contact found for Firstname: {!First_Name_Input} and Lasstname: {!Last_Name_Input}</stringValue>
             </value>
         </inputParameters>
+        <nameSegment>rflib_LoggerFlowAction</nameSegment>
+        <versionSegment>1</versionSegment>
     </actionCalls>
     <actionCalls>
         <name>FS_Postal_Code_Enabled</name>
@@ -39,12 +42,16 @@
         <connector>
             <targetReference>Check_If_Postal_Code_Verification_Is_Enabled</targetReference>
         </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
             <name>name</name>
             <value>
                 <stringValue>Verify_Identify_Postal_Code_Check_Enabled</stringValue>
             </value>
         </inputParameters>
+        <nameSegment>rflib_GetFeatureSwitchValueAction</nameSegment>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <versionSegment>1</versionSegment>
     </actionCalls>
     <actionCalls>
         <name>Log_Event_Verify_Identity_Invoked</name>
@@ -56,6 +63,7 @@
         <connector>
             <targetReference>Verify_Name_Screen</targetReference>
         </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
             <name>eventName</name>
             <value>
@@ -68,6 +76,8 @@
                 <elementReference>recordId</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>rflib_ApplicationEventLoggerAction</nameSegment>
+        <versionSegment>1</versionSegment>
     </actionCalls>
     <actionCalls>
         <name>Log_Event_Verify_Identity_No_Bday</name>
@@ -79,6 +89,7 @@
         <connector>
             <targetReference>birthdate_postal_not_found_screen</targetReference>
         </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
             <name>eventName</name>
             <value>
@@ -91,6 +102,8 @@
                 <elementReference>recordId</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>rflib_ApplicationEventLoggerAction</nameSegment>
+        <versionSegment>1</versionSegment>
     </actionCalls>
     <actionCalls>
         <name>Log_Event_Verify_Identity_No_Name</name>
@@ -102,6 +115,7 @@
         <connector>
             <targetReference>Name_Not_Found_Screen</targetReference>
         </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
             <name>eventName</name>
             <value>
@@ -114,6 +128,8 @@
                 <elementReference>recordId</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>rflib_ApplicationEventLoggerAction</nameSegment>
+        <versionSegment>1</versionSegment>
     </actionCalls>
     <actionCalls>
         <name>Log_Event_Verify_Identity_No_Postal</name>
@@ -122,6 +138,7 @@
         <locationY>1646</locationY>
         <actionName>rflib_ApplicationEventLoggerAction</actionName>
         <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
             <name>eventName</name>
             <value>
@@ -134,6 +151,8 @@
                 <elementReference>recordId</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>rflib_ApplicationEventLoggerAction</nameSegment>
+        <versionSegment>1</versionSegment>
     </actionCalls>
     <actionCalls>
         <name>Log_Event_Verify_Identity_Success</name>
@@ -145,6 +164,7 @@
         <connector>
             <targetReference>Success_Screen</targetReference>
         </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
             <name>eventName</name>
             <value>
@@ -157,6 +177,8 @@
                 <elementReference>recordId</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>rflib_ApplicationEventLoggerAction</nameSegment>
+        <versionSegment>1</versionSegment>
     </actionCalls>
     <actionCalls>
         <name>Log_Flow_Invoked</name>
@@ -168,6 +190,7 @@
         <connector>
             <targetReference>Assign_Stage_1</targetReference>
         </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
             <name>context</name>
             <value>
@@ -186,7 +209,10 @@
                 <stringValue>Flow Invoked {!recordId}</stringValue>
             </value>
         </inputParameters>
+        <nameSegment>rflib_LoggerFlowAction</nameSegment>
+        <versionSegment>1</versionSegment>
     </actionCalls>
+    <apiVersion>49.0</apiVersion>
     <assignments>
         <name>Assign_Stage_1</name>
         <label>Assign Stage 1</label>
@@ -380,6 +406,7 @@
         <connector>
             <targetReference>Does_Contact_Exist</targetReference>
         </connector>
+        <filterLogic>and</filterLogic>
         <filters>
             <field>FirstName</field>
             <operator>EqualTo</operator>
@@ -688,38 +715,47 @@
     <status>Active</status>
     <textTemplates>
         <name>Birthdate_postal_not_found_call_script</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
         <text>We can’t verify your identity at this time. Let me connect you to a supervisor to further assist.</text>
     </textTemplates>
     <textTemplates>
         <name>Customer_Name_Script_Template</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
         <text>Hello, I&apos;m {!User_Formula}. With whom am I speaking?</text>
     </textTemplates>
     <textTemplates>
         <name>Flow_Title_Text_Template</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
         <text>Verify Identity</text>
     </textTemplates>
     <textTemplates>
         <name>Identity_Verified_Script_Text_Template</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
         <text>Thanks, we verified your identity successfully.</text>
     </textTemplates>
     <textTemplates>
         <name>Name_Not_Found_Script_Text_Template</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
         <text>Hmm, I can&apos;t find any information for that name. Let me try again.</text>
     </textTemplates>
     <textTemplates>
         <name>Null_Birthdate_Text_Template</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
         <text>&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); font-size: 20px; color: rgb(194, 57, 52);&quot;&gt;Hmm, we don&apos;t have a birthdate on record to check against.&lt;/span&gt;&lt;/p&gt;</text>
     </textTemplates>
     <textTemplates>
         <name>Null_Postcode_Text_Template</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
         <text>&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); font-size: 20px; color: rgb(194, 57, 52);&quot;&gt;Hmm, we don&apos;t have a postal code on record to check against.&lt;/span&gt;&lt;/p&gt;</text>
     </textTemplates>
     <textTemplates>
         <name>Verify_Birthdate_Script_Text_Template</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
         <text>Thanks, Mr. / Ms. {!Last_Name_Input}. For verification, may I please have your date of birth?</text>
     </textTemplates>
     <textTemplates>
         <name>Verify_Postcode_Script_Text_Template</name>
+        <isViewedAsPlainText>false</isViewedAsPlainText>
         <text>And lastly, can I verify your postal code?</text>
     </textTemplates>
     <variables>
