@@ -19,6 +19,7 @@
         <locationY>200</locationY>
         <actionName>chatterPost</actionName>
         <actionType>chatterPost</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
         <inputParameters>
             <name>text</name>
             <value>
@@ -37,7 +38,10 @@
                 <elementReference>myVariable_current.Owner:User.Id</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>chatterPost</nameSegment>
+        <versionSegment>1</versionSegment>
     </actionCalls>
+    <apiVersion>49.0</apiVersion>
     <assignments>
         <name>myVariable_waitStartTimeAssignment</name>
         <label>myVariable_waitStartTimeAssignment</label>
@@ -83,7 +87,6 @@
         </rules>
     </decisions>
     <description>When a new property is added, post it to chatter</description>
-    <status>ACTIVE</status>
     <formulas>
         <name>formula_myRule_1</name>
         <dataType>Boolean</dataType>
@@ -117,6 +120,7 @@
     </processMetadataValues>
     <processType>Workflow</processType>
     <startElementReference>myVariable_waitStartTimeAssignment</startElementReference>
+    <status>Active</status>
     <variables>
         <name>myVariable_current</name>
         <dataType>SObject</dataType>
