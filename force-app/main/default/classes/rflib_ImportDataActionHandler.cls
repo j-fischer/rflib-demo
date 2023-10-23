@@ -2,11 +2,15 @@ public class rflib_ImportDataActionHandler implements rflib_RetryableActionHandl
 
     private static final rflib_Logger LOGGER = rflib_LoggerUtil.getFactory().createLogger('rflib_ImportDataActionHandler');
 
+    private static final rflib_ApplicationEventLogger APP_LOGGER = rflib_LoggerUtil.getApplicationEventLogger();
+
     public void execute(List<rflib_Retryable_Action__e> actions) {
         LOGGER.info('Executing import action.');
         try {
+            APP_LOGGER.logApplicationEvent('import-sample-data-async', null, null);
+            
             LOGGER.info('importSampleData()');
-
+        
             LOGGER.info('Deleting Bot_Command__c records');
             delete [SELECT Id from Bot_Command__c];
 
@@ -36,8 +40,15 @@ public class rflib_ImportDataActionHandler implements rflib_RetryableActionHandl
             String propertiesJSON = propertiesResource.body.toString();
             List<Property__c> properties = (List<Property__c>) JSON.deserialize(propertiesJSON, List<Property__c>.class);
             insert properties;
+
+            List<rflib_ApplicationEventDetails> details = new List<rflib_ApplicationEventDetails>();
+            for (Property__c p : properties) {
+                details.add(new rflib_ApplicationEventDetails('property-inserted', p.Id, null));
+            }
+            APP_LOGGER.logApplicationEvents(details);
         } catch (Exception ex) {
             LOGGER.fatal('Failed to import sample data: ', ex);
+            APP_LOGGER.logApplicationEvent('import-sample-data-failed', null, null);
             throw ex;
         }        
     }

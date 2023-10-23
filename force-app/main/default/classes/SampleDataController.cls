@@ -2,14 +2,12 @@ public with sharing class SampleDataController {
 
     private static final rflib_Logger LOGGER = rflib_LoggerUtil.getFactory().createLogger('SampleDataController');
 
-    private static final rflib_ApplicationEventLogger appLogger = rflib_LoggerUtil.getApplicationEventLogger();
+    private static final rflib_ApplicationEventLogger APP_LOGGER = rflib_LoggerUtil.getApplicationEventLogger();
 
     @AuraEnabled
     public static void importSampleDataAsync() {
         rflib_Retryable_Action__e action = new rflib_Retryable_Action__e();
         action.Action__c = 'AsyncDataImport';
-        
-        appLogger.logApplicationEvent('import-sample-data-async', null, null);
 
         LOGGER.info('Publishing AsyncDataImport action: ' + action);
         EventBus.publish(action);
@@ -18,7 +16,7 @@ public with sharing class SampleDataController {
     @AuraEnabled
     public static void importSampleData() {
         try {
-            appLogger.logApplicationEvent('import-sample-data', null, null);
+            APP_LOGGER.logApplicationEvent('import-sample-data', null, null);
 
             LOGGER.info('importSampleData()');
 
@@ -51,9 +49,15 @@ public with sharing class SampleDataController {
             String propertiesJSON = propertiesResource.body.toString();
             List<Property__c> properties = (List<Property__c>) JSON.deserialize(propertiesJSON, List<Property__c>.class);
             insert properties;
+
+            List<rflib_ApplicationEventDetails> details = new List<rflib_ApplicationEventDetails>();
+            for (Property__c p : properties) {
+                details.add(new rflib_ApplicationEventDetails('property-inserted', p.Id, null));
+            }
+            APP_LOGGER.logApplicationEvents(details);
         } catch (Exception ex) {
             LOGGER.fatal('Failed to import sample data: ', ex);
-            appLogger.logApplicationEvent('import-sample-data-failed', null, null);
+            APP_LOGGER.logApplicationEvent('import-sample-data-failed', null, null);
             throw ex;
         }        
     }
