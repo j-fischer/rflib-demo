@@ -14,7 +14,7 @@ cd ..\rflib-demo
 call sf project deploy start
 call sf org assign permset -n dreamhouse
 
-call sf apex execute -f apex\resetCustomSettings.apex
+call sf apex run -f apex\resetCustomSettings.apex
 
 call sf org open -p /lightning/page/home
 
