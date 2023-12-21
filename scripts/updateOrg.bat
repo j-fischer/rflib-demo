@@ -8,7 +8,7 @@ cd ..\rflib-demo
 
 call sf project deploy start --ignore-conflicts
 
-call sf apex execute -f apex\resetCustomSettings.apex
+call sf apex run -f apex\resetCustomSettings.apex
 
 call sf project reset tracking -p
 
