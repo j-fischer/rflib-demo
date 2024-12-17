@@ -16,6 +16,7 @@ public with sharing class SampleDataController {
     @AuraEnabled
     public static void importSampleData() {
         try {
+            // Adding a single application event
             APP_LOGGER.logApplicationEvent('import-sample-data', null, null);
 
             LOGGER.info('importSampleData()');
@@ -50,14 +51,15 @@ public with sharing class SampleDataController {
             List<Property__c> properties = (List<Property__c>) JSON.deserialize(propertiesJSON, List<Property__c>.class);
             insert properties;
 
+            // Adding multiple application events in a single transaction
             List<rflib_ApplicationEventDetails> details = new List<rflib_ApplicationEventDetails>();
             for (Property__c p : properties) {
                 details.add(new rflib_ApplicationEventDetails('property-inserted', p.Id, null));
             }
             APP_LOGGER.logApplicationEvents(details);
         } catch (Exception ex) {
+            // This should be logged as an application event as well
             LOGGER.fatal('Failed to import sample data: ', ex);
-            APP_LOGGER.logApplicationEvent('import-sample-data-failed', null, null);
             throw ex;
         }        
     }
