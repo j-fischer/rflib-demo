@@ -1,6 +1,11 @@
 @isTest
 public class EinsteinVisionControllerTest {
     
+    @TestSetup
+    static void makeData(){
+        
+    }
+    
     static testMethod void testPredict() {
         insert new Dreamhouse_Settings__c(Einstein_Vision_Email__c = 'user@host.com');
         Boolean success = true;
