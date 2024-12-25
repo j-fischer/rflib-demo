@@ -13,6 +13,8 @@ call git reset --hard
 echo "Running Apex instrumentation"
 if %PRETTIER%==1 (
     call sf rflib logging apex instrument --sourcepath force-app/main/default/classes --prettier
+    call sf rflib logging lwc instrument --sourcepath force-app/main/default/lwc --prettier
 ) else (
     call sf rflib logging apex instrument --sourcepath force-app/main/default/classes
+    call sf rflib logging lwc instrument --sourcepath force-app/main/default/lwc
 )
