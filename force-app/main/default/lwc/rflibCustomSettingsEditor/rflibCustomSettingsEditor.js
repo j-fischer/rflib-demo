@@ -67,13 +67,13 @@ export default class RflibCustomSettingsEditor extends LightningElement {
             {
                 fieldPath: 'IsActive',
                 operator: 'eq',
-                value: true
-            }
-        ]
+                value: true,
+            },
+        ],
     };
 
     ownerMatchingInfo = {
-        primaryField: { fieldPath: 'Name' }
+        primaryField: { fieldPath: 'Name' },
     };
 
     connectedCallback() {
@@ -116,7 +116,7 @@ export default class RflibCustomSettingsEditor extends LightningElement {
                         id: setting.id,
                         setupOwnerId: setting.setupOwnerId,
                         setupOwnerName: setting.setupOwnerName,
-                        setupOwnerType: setting.setupOwnerType
+                        setupOwnerType: setting.setupOwnerType,
                     };
                     const fieldKeys = Object.keys(setting.fields);
                     fieldKeys.forEach((key) => {
@@ -140,7 +140,7 @@ export default class RflibCustomSettingsEditor extends LightningElement {
     createColumns(fieldLabels) {
         const columns = [
             { label: 'Setup Owner Type', fieldName: 'setupOwnerType', type: 'text' },
-            { label: 'Setup Owner Name', fieldName: 'setupOwnerName', type: 'text' }
+            { label: 'Setup Owner Name', fieldName: 'setupOwnerName', type: 'text' },
         ];
 
         if (this.fieldsToDisplay) {
@@ -155,8 +155,8 @@ export default class RflibCustomSettingsEditor extends LightningElement {
             columns.push({
                 type: 'action',
                 typeAttributes: {
-                    rowActions: this.getRowActions
-                }
+                    rowActions: this.getRowActions,
+                },
             });
         }
 
@@ -205,7 +205,6 @@ export default class RflibCustomSettingsEditor extends LightningElement {
     }
 
     handleEditRecord(row) {
-
         this.isNewModal = false;
         this.modalHeader = 'Edit Custom Setting for ' + row.setupOwnerName;
         this.recordValues = { ...row };
@@ -235,7 +234,7 @@ export default class RflibCustomSettingsEditor extends LightningElement {
                             dataType === 'STRING' || dataType === 'EMAIL' || dataType === 'PHONE' || dataType === 'URL',
                         isNumberField: dataType === 'DOUBLE' || dataType === 'INTEGER' || dataType === 'CURRENCY',
                         isBooleanField: dataType === 'BOOLEAN',
-                        value: value
+                        value: value,
                     };
                 });
             })
@@ -257,9 +256,13 @@ export default class RflibCustomSettingsEditor extends LightningElement {
     }
 
     handleOwnerIdChanged(event) {
-        let newOwnerId = event.detail.recordId;
-        if (this.setupOwnerId !== newOwnerId) {
-            this.setupOwnerId = newOwnerId;
+        try {
+            let newOwnerId = event.detail.recordId;
+            if (this.setupOwnerId !== newOwnerId) {
+                this.setupOwnerId = newOwnerId;
+            }
+        } catch (ex) {
+            throw ex;
         }
     }
 
@@ -269,7 +272,7 @@ export default class RflibCustomSettingsEditor extends LightningElement {
 
     handleModalSave() {
         const customSettingRecord = {
-            sobjectType: this.customSettingsApiName
+            sobjectType: this.customSettingsApiName,
         };
 
         if (this.recordId) {
@@ -308,7 +311,7 @@ export default class RflibCustomSettingsEditor extends LightningElement {
         if (status === 'confirm') {
             deleteCustomSettingRecord({
                 customSettingsApiName: this.customSettingsApiName,
-                recordId: this.recordId
+                recordId: this.recordId,
             })
                 .then(() => {
                     this.showToast('Success', 'Record deleted successfully.', 'success');
@@ -318,7 +321,7 @@ export default class RflibCustomSettingsEditor extends LightningElement {
                     const errorMessage = 'Failed to delete record: ' + (error?.body?.message || 'Unknown reason');
                     this.showToast('Error', errorMessage, 'error');
                 });
-        } 
+        }
     }
 
     handleRefresh() {
@@ -329,7 +332,7 @@ export default class RflibCustomSettingsEditor extends LightningElement {
         const evt = new ShowToastEvent({
             title: title,
             message: message,
-            variant: variant
+            variant: variant,
         });
         this.dispatchEvent(evt);
     }
@@ -337,14 +340,14 @@ export default class RflibCustomSettingsEditor extends LightningElement {
     getPicklistOptions(fieldInfo) {
         return fieldInfo.picklistValues.map((entry) => ({
             label: entry.value,
-            value: entry.value
+            value: entry.value,
         }));
     }
 
     get typeOptions() {
         return [
             { label: 'User', value: 'UserType' },
-            { label: 'Profile', value: 'ProfileType' }
+            { label: 'Profile', value: 'ProfileType' },
         ];
     }
 
