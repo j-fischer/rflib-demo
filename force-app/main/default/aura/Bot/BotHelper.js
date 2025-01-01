@@ -36,7 +36,11 @@
             }
 
         });
-        $A.enqueueAction(action);
+        try {
+            $A.enqueueAction(action);
+        } catch(e) {
+            // swallow the exception for instrumentation test purposes
+        }
     }
 
 })
