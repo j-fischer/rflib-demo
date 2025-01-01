@@ -5,7 +5,8 @@ set PRETTIER=0
 if "%1"=="--prettier" set PRETTIER=1
 
 echo "Setting logging settings"
-set DEBUG=sf:RflibLoggingApexInstrument
+set SF_LOG_LEVEL=debug
+set DEBUG=sf:Rflib*
 
 echo "Resetting git"
 call git reset --hard
