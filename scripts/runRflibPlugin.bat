@@ -1,14 +1,20 @@
 REM filepath: /c:/Users/fisch/Projects/Salesforce/rflib-demo/scripts/runRflibPlugin.bat
 @ECHO OFF
 
-REM Usage: runRflibPlugin.bat [--prettier] [--debug]
+REM Usage: runRflibPlugin.bat [--prettier] [--debug] [--skip-reset]
 
 set PRETTIER=0
 set DEBUG_MODE=0
+set SKIP_RESET=0
 if "%1"=="--prettier" set PRETTIER=1
 if "%2"=="--prettier" set PRETTIER=1
+if "%3"=="--prettier" set PRETTIER=1
 if "%1"=="--debug" set DEBUG_MODE=1
 if "%2"=="--debug" set DEBUG_MODE=1
+if "%3"=="--debug" set DEBUG_MODE=1
+if "%1"=="--skip-reset" set SKIP_RESET=1
+if "%2"=="--skip-reset" set SKIP_RESET=1
+if "%3"=="--skip-reset" set SKIP_RESET=1
 
 echo "Setting logging settings"
 if %DEBUG_MODE%==1 (
@@ -16,8 +22,10 @@ if %DEBUG_MODE%==1 (
     set DEBUG=sf:Rflib*
 )
 
-echo "Resetting git"
-call git reset --hard
+if %SKIP_RESET%==0 (
+    echo "Resetting git"
+    call git reset --hard
+)
 
 echo "Running Apex instrumentation"
 if %PRETTIER%==1 (
