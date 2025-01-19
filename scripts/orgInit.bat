@@ -4,7 +4,7 @@ call sf org create scratch -a rflib_demo -d -f config/project-scratch-def.json -
 
 cd ..\rflib
 
-call sf project deploy start -o rflib_demo
+call sf project deploy start -o rflib_demo --ignore-conflicts
 call sf org assign permset -o rflib_demo -n rflib_Ops_Center_Access
 call sf org assign permset -o rflib_demo -n rflib_Enable_Client_Logging
 call sf org assign permset -o rflib_demo -n rflib_Create_Application_Event
