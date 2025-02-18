@@ -26,7 +26,7 @@
         <inputParameters>
             <name>message</name>
             <value>
-                <stringValue>No contact found for Firstname: {!First_Name_Input} and Lasstname: {!Last_Name_Input}</stringValue>
+                <stringValue>No contact found for Firstname: {!First_Name_Input} and Lastname: {!Last_Name_Input}</stringValue>
             </value>
         </inputParameters>
         <nameSegment>rflib_LoggerFlowAction</nameSegment>
