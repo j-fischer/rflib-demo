@@ -40,19 +40,23 @@ if %PRETTIER%==1 (
         call sf rflib logging apex instrument --sourcepath force-app --prettier --skip-instrumented
         call sf rflib logging aura instrument --sourcepath force-app --prettier --skip-instrumented
         call sf rflib logging lwc instrument --sourcepath force-app --prettier --skip-instrumented
+        call sf rflib logging flow instrument --sourcepath force-app --prettier --skip-instrumented
     ) else (
         call sf rflib logging apex instrument --sourcepath force-app --prettier
         call sf rflib logging aura instrument --sourcepath force-app --prettier
         call sf rflib logging lwc instrument --sourcepath force-app --prettier
+        call sf rflib logging flow instrument --sourcepath force-app --prettier
     )
 ) else (
     if %SKIP_INSTRUMENTED%==1 (
         call sf rflib logging apex instrument --sourcepath force-app --skip-instrumented
         call sf rflib logging aura instrument --sourcepath force-app --skip-instrumented
         call sf rflib logging lwc instrument --sourcepath force-app --skip-instrumented
+        call sf rflib logging flow instrument --sourcepath force-app --skip-instrumented
     ) else (
         call sf rflib logging apex instrument --sourcepath force-app
         call sf rflib logging aura instrument --sourcepath force-app
         call sf rflib logging lwc instrument --sourcepath force-app
+        call sf rflib logging flow instrument --sourcepath force-app
     )
 )
