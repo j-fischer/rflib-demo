@@ -19,6 +19,7 @@ call sf apex run -f apex\resetCustomSettings.apex
 call sf org open -p /lightning/page/home
 
 echo "Installing Big Object Utility"
+call sf package install --package 04t5a000001g4x9AAA -o rflib_demo -w 10
 call sf package install --package 04t7F000003irldQAA -o rflib_demo -w 10
 call sf package install --package 04t1t000003Po3QAAS -o rflib_demo -w 10 && sf org assign permset --name Streaming_Monitor -o rflib_demo
 
