@@ -11,7 +11,7 @@ call sf org assign permset -o rflib_demo -n rflib_Create_Application_Event
 
 cd ..\rflib-demo
 
-call sf project deploy start
+call sf project deploy start --ignore-conflicts
 call sf org assign permset -n dreamhouse
 
 call sf apex run -f apex\resetCustomSettings.apex
