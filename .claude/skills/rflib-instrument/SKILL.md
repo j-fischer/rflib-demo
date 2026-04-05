@@ -9,8 +9,8 @@ description: >
 
 # /rflib-instrument — Instrument Source Files with RFLIB Logging
 
-Adds RFLIB logging statements to Apex classes, LWC components, Aura components, and
-Salesforce Flows using the `sf rflib logging` commands.
+A hybrid agent that combines the `sf rflib logging` CLI commands (fast, regex-based bulk
+instrumentation) with direct file editing to cover patterns the CLI engine cannot handle.
 
 ## Usage
 
@@ -18,26 +18,22 @@ Salesforce Flows using the `sf rflib logging` commands.
 /rflib-instrument [apex|lwc|aura|flow|all] [--sourcepath <path>] [options]
 ```
 
-## Argument Resolution
+## Three-Phase Workflow
 
-### Step 1 — Determine the target type
+### Phase 1 — Argument Resolution
 
-Parse `$ARGUMENTS` for a leading keyword: `apex`, `lwc`, `aura`, `flow`, or `all`.
+**Determine target type** from `$ARGUMENTS`:
+- `apex`  — Apex classes (`.cls`)
+- `lwc`   — Lightning Web Component JS/TS files
+- `aura`  — Aura Component JS files
+- `flow`  — Salesforce Flow XML (`.flow-meta.xml`)
+- `all`   — Run all four in sequence
 
-- `apex` — Apex classes (.cls files)
-- `lwc`  — Lightning Web Component JavaScript/TypeScript files
-- `aura` — Aura Component JavaScript files
-- `flow` — Salesforce Flow XML files (.flow-meta.xml)
-- `all`  — Run all four in sequence against the same `--sourcepath`
+If not specified, infer from context. If still ambiguous, ask:
+> "Which component type? (apex / lwc / aura / flow / all)"
 
-If no type keyword is present, check the user's surrounding message for context
-(e.g., if they mentioned "my Apex classes", use `apex`). If still ambiguous, ask:
-> "Which component type do you want to instrument? (apex / lwc / aura / flow / all)"
-
-### Step 2 — Determine the source path
-
-Look for `--sourcepath` or `-s` in `$ARGUMENTS`. If absent, ask:
-> "What is the source path to instrument? (e.g., force-app/main/default/classes)"
+**Determine source path** from `--sourcepath` / `-s`. If absent, ask:
+> "What is the source path? (e.g., force-app/main/default/classes)"
 
 Common defaults to suggest:
 - apex: `force-app/main/default/classes`
@@ -46,41 +42,46 @@ Common defaults to suggest:
 - flow: `force-app/main/default/flows`
 - all:  `force-app`
 
-### Step 3 — Determine options
+**Resolve options** — defaults if not specified in `$ARGUMENTS`:
 
-Check `$ARGUMENTS` for any flags below. If not present, apply the listed defaults:
+| Flag                  | Default | Notes                                                    |
+|-----------------------|---------|----------------------------------------------------------|
+| `--dryrun` / `-d`     | true    | Always dry-run first; confirm before live run            |
+| `--skip-instrumented` | false   | Recommend `true` for partially-instrumented codebases    |
+| `--verbose` / `-v`    | false   | Recommend alongside `--dryrun` to see affected files     |
+| `--prettier` / `-p`   | false   | Suggest if project uses Prettier                         |
+| `--exclude` / `-e`    | none    | Glob pattern for generated or managed package files      |
+| `--no-if`             | false   | apex/lwc/aura only — omit if/else condition logging      |
+| `--no-catch`          | false   | apex only — omit catch block logging                     |
+| `--concurrency` / `-c`| 10      | Increase for large codebases                             |
 
-| Flag                | Default | Notes                                                   |
-|---------------------|---------|---------------------------------------------------------|
-| `--dryrun` / `-d`   | true    | Always dry-run first; confirm before live run           |
-| `--skip-instrumented` | false | Recommend `true` if codebase may already have RFLIB     |
-| `--prettier` / `-p` | false   | Suggest if project uses Prettier                        |
-| `--verbose` / `-v`  | false   | Recommend alongside `--dryrun` to see affected files    |
-| `--exclude` / `-e`  | none    | Glob pattern; suggest for generated or managed pkg code |
-| `--no-if`           | false   | Apex/LWC/Aura only — omit if/else statement logging     |
-| `--no-catch`        | false   | Apex only — omit catch-block logging                    |
-| `--concurrency` / `-c` | 10   | Increase for large codebases                            |
+**Flag compatibility** — do not pass unsupported flags:
+- `--no-catch`: apex only
+- `--no-if`, `--prettier`: apex, lwc, aura — NOT flow
 
-### Step 4 — Dry-run gate
+---
 
-Unless the user explicitly passed `--no-dryrun`, said "skip dry run", or "just do it":
+### Phase 2 — CLI Bulk Instrumentation
 
-1. Run with `--dryrun --verbose`
-2. Show the output summary
-3. Ask: *"X files would be modified. Proceed with the actual instrumentation? (yes/no)"*
+Run the CLI command(s) which handle the fast, well-tested regex-based cases:
+method entry logging, catch blocks, if/else conditions, System.debug/console.log replacement,
+promise chain logging, and logger declaration insertion.
 
-Do not proceed without an affirmative answer.
+**Dry-run gate** — unless the user explicitly opted out, always run with `--dryrun --verbose` first:
+```bash
+sf rflib logging <type> instrument --sourcepath <path> --dryrun --verbose [flags]
+```
+Show the output, then ask:
+> "X files would be modified. Proceed with instrumentation? (yes/no)"
 
-### Step 5 — Execute
+Do not continue without an affirmative answer.
 
-Build and run the appropriate command(s):
-
-**Single type:**
+**Live run** after confirmation:
 ```bash
 sf rflib logging <type> instrument --sourcepath <path> [flags]
 ```
 
-**`all` pseudo-target** — run each type sequentially with the same sourcepath:
+For `all`, run each type sequentially (skip unsupported flags per type):
 ```bash
 sf rflib logging apex instrument --sourcepath <path> [flags]
 sf rflib logging lwc  instrument --sourcepath <path> [flags]
@@ -88,78 +89,105 @@ sf rflib logging aura instrument --sourcepath <path> [flags]
 sf rflib logging flow instrument --sourcepath <path> [flags]
 ```
 
-**Flag compatibility rules — do not pass unsupported flags:**
-- `--no-catch` is supported by `apex` only
-- `--no-if` is supported by `apex`, `lwc`, `aura` — NOT `flow`
-- `--prettier` is supported by `apex`, `lwc`, `aura` — NOT `flow`
+---
 
-### Step 6 — Report results
+### Phase 3 — Agent Gap Analysis and Fill
 
-After execution, summarize:
-- Total files processed
-- Total files modified
-- Files formatted (if `--prettier` was used)
-- List of modified file paths (if `--verbose` was used)
-- Any errors encountered
+After the CLI run (or in dry-run mode: after reading the unmodified files), use the Read tool
+to scan the modified files and identify patterns the regex engine cannot handle. Use the Edit
+tool to add the missing log statements.
+
+Skip Phase 3 if the type is `flow` — Flow instrumentation is XML-only and fully handled by the CLI.
+
+#### Patterns to detect and fix
+
+**Apex:**
+
+| Pattern | What to add |
+|---------|-------------|
+| `switch on <expr> { when <val> { ... } }` | `LOGGER.debug('switch on <expr>: when <val>');` at the start of each `when` block |
+| `return condition ? valueA : valueB;` | `LOGGER.debug('<methodName>() ternary: <condition>');` before the return |
+| `for (...) { ... }` / `while (...) { ... }` | `LOGGER.debug('<methodName>() entering <for/while> loop: <condition>');` before the loop |
+| Complex generic parameter type not serialized | Ensure `JSON.serialize()` wraps the argument in the existing method entry log |
+
+**LWC / Aura:**
+
+| Pattern | What to add |
+|---------|-------------|
+| `switch (expr) { case val: ... }` | `logger.debug('<methodName>() switch case: <val>');` at the start of each `case` |
+| `return condition ? valueA : valueB;` | `logger.debug('<methodName>() ternary: <condition>');` before the return |
+| `for (... of ...) { ... }` / `while (...) { ... }` | `logger.debug('<methodName>() entering loop');` before the loop |
+| Parameter with union type (`string \| null`) | Log with just the parameter name (no type annotation in the log message) |
+
+#### Scope guard — do NOT instrument
+
+- Lines already containing `LOGGER.` or `logger.` (already instrumented)
+- LWC/Aura lifecycle callbacks (`connectedCallback`, `disconnectedCallback`, `renderedCallback`,
+  `errorCallback`) unless they contain user logic beyond `super.*()` calls — for these, only
+  add a method entry log, not loop/ternary/switch logs
+- Files matching the user's `--exclude` pattern
+- Test helper methods or mock functions
+
+#### In dry-run mode
+
+Do not write any files. Instead, list for each file what statements Claude would add:
+```
+[DRY RUN] Would add to OrderService.cls:
+  Line 42: LOGGER.debug('switch on orderType: when STANDARD');
+  Line 67: LOGGER.debug('processOrder() ternary: hasDiscount');
+```
+
+---
+
+### Phase 4 — Report
+
+Summarize the full instrumentation:
+
+```
+Phase 1 (CLI):
+  Files processed:  42
+  Files modified:   38
+  Patterns added:   method entry (38), catch (12), if/else (24), System.debug replaced (7)
+
+Phase 2 (Agent):
+  Additional edits: 6 files
+  Patterns added:   switch (3), ternary (2), for loop (4)
+
+Total modified: 44 files
+```
+
+Group Phase 2 changes by file. Offer to run Prettier if not already applied.
 
 ---
 
 ## Component Type Guide
 
-| Type | File Pattern              | What Gets Added                                          |
-|------|---------------------------|----------------------------------------------------------|
-| apex | `*.cls`                   | Logger declaration, method entry logs, catch logs,       |
-|      |                           | if/else condition logs, `System.debug()` replacement     |
-| lwc  | `*.js`, `*.ts` in lwc/    | `createLogger` import, method entry logs, catch logs,    |
-|      |                           | if/else logs, `console.log/warn/error` replacement       |
-| aura | `*.js` in aura/           | Logger helper import, method entry logs, catch logs,     |
-|      |                           | if/else logs, `console.*` replacement                    |
-| flow | `*.flow-meta.xml`         | RFLIB log actions before flow elements, decision         |
-|      |                           | branch logging, AUTO_LAYOUT_CANVAS mode                  |
-
----
+| Type | Files          | CLI handles                              | Agent adds                               |
+|------|----------------|------------------------------------------|------------------------------------------|
+| apex | `*.cls`        | method entry, catch, if/else, debug repl | switch, ternary, loops, generic fix      |
+| lwc  | `*.js`, `*.ts` | method entry, catch, if/else, console repl, promise chains | switch, ternary, loops, union type fix |
+| aura | `*.js` in aura | method entry, catch, if/else, console repl, promise chains | switch, ternary, loops |
+| flow | `*.flow-meta.xml` | log actions, decision branches, layout | nothing (XML-only, fully handled)      |
 
 ## Common Workflows
 
-### First-time onboarding (safe)
+### First-time onboarding
 ```
-/rflib-instrument all --sourcepath force-app --dryrun --verbose
+/rflib-instrument all --sourcepath force-app
 ```
-Review what would change, then re-run without `--dryrun`.
+Dry-runs CLI, shows preview, confirms, then Claude fills gaps.
 
-### Instrument one component type
+### Re-run on partially-instrumented codebase
 ```
-/rflib-instrument apex --sourcepath force-app/main/default/classes
-```
-
-### Re-run on a partially-instrumented codebase
-Always add `--skip-instrumented` to avoid double-logging:
-```
-/rflib-instrument lwc --sourcepath force-app --skip-instrumented
+/rflib-instrument apex --sourcepath force-app --skip-instrumented
 ```
 
-### Exclude generated or managed package code
+### Exclude generated code
 ```
 /rflib-instrument apex --sourcepath force-app --exclude "**/fflib_*.cls"
 ```
 
-### Instrument with Prettier formatting
+### Dry-run only (preview both phases, no writes)
 ```
-/rflib-instrument apex --sourcepath force-app/main/default/classes --prettier
+/rflib-instrument lwc --sourcepath force-app/main/default/lwc --dryrun
 ```
-
----
-
-## Flag Reference
-
-| Flag                  | Short | Types          | Description                            |
-|-----------------------|-------|----------------|----------------------------------------|
-| `--sourcepath`        | `-s`  | all            | Directory to instrument (required)     |
-| `--dryrun`            | `-d`  | all            | Preview without modifying files        |
-| `--prettier`          | `-p`  | apex, lwc, aura| Format output with Prettier            |
-| `--skip-instrumented` |       | all            | Skip files already containing RFLIB    |
-| `--verbose`           | `-v`  | all            | Print paths of files that would change |
-| `--exclude`           | `-e`  | all            | Glob pattern to exclude files          |
-| `--no-if`             |       | apex, lwc, aura| Skip if/else statement instrumentation |
-| `--no-catch`          |       | apex only      | Skip catch block instrumentation       |
-| `--concurrency`       | `-c`  | all            | Parallel worker count (default: 10)    |
