@@ -4,7 +4,7 @@ public class rflib_ImportDataActionHandler implements rflib_RetryableActionHandl
 
     private static final rflib_ApplicationEventLogger APP_LOGGER = rflib_LoggerUtil.getApplicationEventLogger();
 
-    public void execute(List<rflib_Retryable_Action__e> actions) {
+    public void execute(List<rflib_RetryableAction> actions) {
         LOGGER.info('Executing import action.');
         try {
             APP_LOGGER.logApplicationEvent('import-sample-data-async', null, null);
