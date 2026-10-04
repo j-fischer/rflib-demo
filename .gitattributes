@@ -1,0 +1,4 @@
+# Batch files need CRLF (labels and goto break with LF), shell scripts need LF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.sh text eol=lf
