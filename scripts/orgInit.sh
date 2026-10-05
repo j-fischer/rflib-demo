@@ -2,19 +2,26 @@
 #
 # Creates a scratch org for the RFLIB demo and sets it up.
 #
-# Usage: scripts/orgInit.sh [org alias]   (default: rflib_demo)
+# Usage: scripts/orgInit.sh [--alias <alias>] [--packages]
 #
-# The RFLIB packages are installed as unlocked packages, so that the RFLIB SF CLI plugin can detect
-# RFLIB 11.4.0+ in the org and instrument Flow fault paths. The latest package version IDs are read
-# from the packageAliases in the RFLIB sfdx-project.json (see scripts/lib/latestRflibPackage.js), which
-# is taken from a sibling ../rflib checkout if present, or from GitHub otherwise.
+#   --alias, -a <alias>  Alias of the new scratch org (default: rflib_demo)
+#   --packages           Install the latest released RFLIB packages instead of deploying the source code
+#                        of the sibling ../rflib checkout
+#   --help, -h           Show this help
+#
+# By default, RFLIB (all of RFLIB, RFLIB-FS, RFLIB-TF and RFLIB-PHAROS) is deployed as unpackaged source
+# from ../rflib, so that the org runs the RFLIB code under development. In this mode, the RFLIB SF CLI
+# plugin skips Flow fault paths, because they require RFLIB 11.4.0+ installed as a package. Use --packages
+# to demo them; the latest package version IDs are then read from the packageAliases in the RFLIB
+# sfdx-project.json (see scripts/lib/latestRflibPackage.js).
 #
 # Setup order (every step requires the ones before it):
-#   1. RFLIB, RFLIB-FS, RFLIB-TF       RFLIB-TF 4.0.0 requires RFLIB 10.0.0+ and RFLIB-FS 4.0.0+
-#   2. Pharos, then RFLIB-PHAROS       RFLIB-PHAROS forwards log events to the pharos__ objects
-#   3. Big Object Utility
-#   4. Demo source                     Its custom metadata records use RFLIB-FS and RFLIB-TF types
-#   5. Permission sets and Apex scripts (pharosPostInstall.apex requires RFLIB-PHAROS)
+#   1. RFLIB                           Source: ../rflib. Packages: RFLIB, RFLIB-FS, RFLIB-TF
+#   2. Pharos                          RFLIB-PHAROS forwards log events to the pharos__ objects
+#   3. RFLIB-PHAROS (--packages only)  Part of the source deploy in step 1 otherwise
+#   4. Big Object Utility
+#   5. RFLIB permission sets, demo source (its custom metadata uses RFLIB-FS and RFLIB-TF types)
+#   6. Apex scripts                    pharosPostInstall.apex requires RFLIB-PHAROS and Pharos
 
 set -eE
 
@@ -23,9 +30,44 @@ PHAROS_PACKAGE_ID=04t5a000001g4x9AAA
 BIG_OBJECT_UTILITY_PACKAGE_ID=04t7F000003irldQAA
 INSTALL_WAIT_MINUTES=30
 
-ORG_ALIAS="${1:-rflib_demo}"
+ORG_ALIAS=rflib_demo
+USE_PACKAGES=0
+
+usage() {
+    cat <<EOF
+Usage: scripts/orgInit.sh [--alias <alias>] [--packages]
+
+  --alias, -a <alias>  Alias of the new scratch org (default: rflib_demo)
+  --packages           Install the latest released RFLIB packages instead of deploying the source code
+                       of the sibling ../rflib checkout. Required for Flow fault-path instrumentation.
+EOF
+}
+
+usage_error() {
+    echo "ERROR: $1" >&2
+    echo "Run \"scripts/orgInit.sh --help\" for usage." >&2
+    exit 1
+}
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --alias | -a)
+            [ -n "$2" ] || usage_error "$1 requires an alias"
+            ORG_ALIAS="$2"
+            shift
+            ;;
+        --packages) USE_PACKAGES=1 ;;
+        --help | -h)
+            usage
+            exit 0
+            ;;
+        *) usage_error "Unknown option \"$1\"" ;;
+    esac
+    shift
+done
 
 cd "$(dirname "$0")/.."
+RFLIB_DIR="$(cd .. && pwd)/rflib"
 
 trap '[ "$BASH_SUBSHELL" = 0 ] && echo "ERROR: Org setup stopped because the previous step failed." >&2' ERR
 
@@ -44,20 +86,34 @@ install_package() {
     sf package install --package "$2" --target-org "$ORG_ALIAS" --wait "$INSTALL_WAIT_MINUTES" --no-prompt
 }
 
-echo "Resolving the latest RFLIB package versions"
-resolve_package RFLIB RFLIB
-resolve_package RFLIB-FS RFLIB_FS
-resolve_package RFLIB-TF RFLIB_TF
-resolve_package RFLIB-PHAROS RFLIB_PHAROS
+if [ "$USE_PACKAGES" = 1 ]; then
+    echo "Resolving the latest RFLIB package versions"
+    resolve_package RFLIB RFLIB
+    resolve_package RFLIB-FS RFLIB_FS
+    resolve_package RFLIB-TF RFLIB_TF
+    resolve_package RFLIB-PHAROS RFLIB_PHAROS
+elif [ ! -f "$RFLIB_DIR/sfdx-project.json" ]; then
+    echo "ERROR: No RFLIB checkout found in $RFLIB_DIR. Clone https://github.com/j-fischer/rflib next to" >&2
+    echo "       this repository, or run with --packages to install the released RFLIB packages." >&2
+    exit 1
+fi
 
 echo "Creating scratch org $ORG_ALIAS"
 sf org create scratch --alias "$ORG_ALIAS" --set-default --definition-file config/project-scratch-def.json --duration-days 30
 
-install_package "RFLIB $RFLIB_VERSION" "$RFLIB_ID"
-install_package "RFLIB-FS $RFLIB_FS_VERSION" "$RFLIB_FS_ID"
-install_package "RFLIB-TF $RFLIB_TF_VERSION" "$RFLIB_TF_ID"
+if [ "$USE_PACKAGES" = 1 ]; then
+    install_package "RFLIB $RFLIB_VERSION" "$RFLIB_ID"
+    install_package "RFLIB-FS $RFLIB_FS_VERSION" "$RFLIB_FS_ID"
+    install_package "RFLIB-TF $RFLIB_TF_VERSION" "$RFLIB_TF_ID"
+else
+    echo "Deploying RFLIB source from $RFLIB_DIR"
+    (cd "$RFLIB_DIR" && sf project deploy start --target-org "$ORG_ALIAS" --ignore-conflicts)
+fi
+
 install_package "Pharos" "$PHAROS_PACKAGE_ID"
-install_package "RFLIB-PHAROS $RFLIB_PHAROS_VERSION" "$RFLIB_PHAROS_ID"
+if [ "$USE_PACKAGES" = 1 ]; then
+    install_package "RFLIB-PHAROS $RFLIB_PHAROS_VERSION" "$RFLIB_PHAROS_ID"
+fi
 install_package "Big Object Utility" "$BIG_OBJECT_UTILITY_PACKAGE_ID"
 
 echo "Assigning RFLIB permission sets"
