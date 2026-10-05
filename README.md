@@ -1,148 +1,125 @@
-# DreamHouse Aura Sample Application
+# RFLIB Demo
 
-> IMPORTANT: This is the Aura version of the DreamHouse sample application. If you are looking for the new Lightning Web Components version, click [here](https://github.com/dreamhouseapp/dreamhouse-lwc).
+A demo and test bed for [RFLIB](https://github.com/j-fischer/rflib), the open-source logging framework for Salesforce, and for [rflib-plugin](https://github.com/j-fischer/rflib-plugin), the Salesforce CLI plugin that automatically instruments Salesforce metadata with RFLIB logging.
 
-![dreamhouse-logo](dreamhouse-logo.png)
+The app is the classic Aura version of the DreamHouse real estate sample app (see [About DreamHouse](#about-dreamhouse)). Its Apex classes, Aura components, Lightning Web Component and Flows give the plugin a realistic code base to instrument, and the org setup installs the RFLIB packages so all RFLIB features can be shown:
 
-[![CircleCI](https://circleci.com/gh/dreamhouseapp/dreamhouse-sfdx.svg?style=svg)](https://circleci.com/gh/dreamhouseapp/dreamhouse-sfdx)
+- Logging from Apex, Aura, LWC and Flows, viewed in the RFLIB Ops Center (Log Monitor, Log Archive, Management Dashboard)
+- Application Events, Feature Switches (RFLIB-FS), the Trigger Framework and Retryable Actions (RFLIB-TF)
+- Log forwarding to [Pharos](https://pharos.ai/) (RFLIB-PHAROS)
+- Automatic instrumentation with `sf rflib logging ... instrument`, including Flow fault-path logging
+- Debugging an org with the `sf rflib debug` commands, e.g. from Claude Code (see [`.claude/skills`](.claude/skills))
 
-Dreamhouse is a sample application for the real estate business built on the Salesforce platform. It allows brokers to manage their properties and customers to find their dream house.
+## Prerequisites
 
-## Table of contents
-
-* [Installation instructions](#installation-instructions)
-    * [Installing DreamHouse using Salesforce DX](#installing-dreamhouse-using-salesforce-dx)
-    * [Installing DreamHouse using an unlocked package](#installing-dreamhouse-using-an-unlocked-package)
-* [Code highlights](#code-highlights)
-* [Additional resources](#additional-resources)
-
-## Installation Instructions
-
-There are two ways to install DreamHouse:
-- Using Salesforce DX
-- Using an unlocked package
-
-### Installing DreamHouse using Salesforce DX
-This is the recommended installation option for developers who want to experience the app and the code.
-
-1. Install Salesforce DX. Enable the Dev Hub in your org or sign up for a Dev Hub trial org and install the Salesforce DX CLI. Follow the instructions in the [Salesforce DX Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm?search_text=trial%20hub%20org) or in the [App Development with Salesforce DX](https://trailhead.salesforce.com/modules/sfdx_app_dev) Trailhead module.
-
-1. Clone the **dreamhouse-sfdx** repository:
+- A [Dev Hub](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_enable_devhub.htm) org, authorized as your default Dev Hub (`sf org login web --set-default-dev-hub`)
+- The [Salesforce CLI](https://developer.salesforce.com/tools/salesforcecli) (`sf`)
+- [Node.js](https://nodejs.org/) on your `PATH`; the setup scripts use it to read package versions and check the plugin version
+- rflib-plugin **0.21.0 or later**:
+    ```bash
+    sf plugins install rflib-plugin
     ```
-    git clone https://github.com/dreamhouseapp/dreamhouse-sfdx
-    cd dreamhouse-sfdx
-    ```
+- Optional: a checkout of [rflib](https://github.com/j-fischer/rflib) next to this repository (`../rflib`). The setup reads the latest RFLIB package versions from `../rflib/sfdx-project.json` if it exists, and from the RFLIB repository on GitHub otherwise. Set `RFLIB_PROJECT_JSON` to a path or URL to use a different `sfdx-project.json`.
 
-1. Create a scratch org and provide it with an alias of your choice (**dh** in the command below):
-    ```
-    sfdx force:org:create -s -f config/project-scratch-def.json -a dh
-    ```
+## Setup
 
-1. Push the app to your scratch org:
-    ```
-    sfdx force:source:push
-    ```
+The setup script creates a scratch org (default alias `rflib_demo`, 30 days) and then:
 
-1. Assign the **dreamhouse** permission set to the default user:
-    ```
-    sfdx force:user:permset:assign -n dreamhouse
-    ```
+1. Installs the latest **RFLIB**, **RFLIB-FS** and **RFLIB-TF** packages, in dependency order
+2. Installs **Pharos** and then **RFLIB-PHAROS**
+3. Installs **Big Object Utility**
+4. Assigns the RFLIB permission sets, deploys the demo source and assigns the `dreamhouse` permission set
+5. Configures the RFLIB Logger Settings (`apex/resetCustomSettings.apex`, `apex/pharosPostInstall.apex`) and resets source tracking
 
-1. Open the scratch org:
-    ```
-    sfdx force:org:open
-    ```
+RFLIB is installed as packages rather than deployed as source because the plugin only instruments Flow fault paths when the target org has RFLIB 11.4.0 or later installed as a package. The script stops at the first step that fails.
 
-1. Select **DreamHouse** in the App Launcher
+Windows:
 
-1. Click the **Data Import** tab and click **Initialize Sample Data**
+```bash
+scripts\orgInit.bat
+```
 
-### Installing DreamHouse using an unlocked package
-This is the recommended option for non developers. Use this option if you want to experience the sample app but do not plan to modify the code.
+macOS/Linux:
 
-1. [Sign up](https://developer.salesforce.com/signup) for a developer edition.
+```bash
+./scripts/orgInit.sh
+```
 
-1. Enable My Domain. Follow the instructions to enable My Domain [here](https://trailhead.salesforce.com/modules/identity_login/units/identity_login_my_domain).
+Pass an alias to use a different name, e.g. `scripts\orgInit.bat my_demo`. The new org becomes the default org of this project.
 
-1. Click [this link](https://login.salesforce.com/packaging/installPackage.apexp?p0=04t1I0000036u98QAA) to install the DreamHouse unlocked package into your developer edition org.
+On Windows, use the `.bat` scripts. In Git Bash, the `sf` wrapper of the Windows installer can return a non-zero exit code for successful commands, which stops the `.sh` scripts.
 
-1. Select **Install for All Users**. When prompted, make sure you grant access to the external sites (api.lifx.com, dreamhouzz-push-server.herokuapp.com, and hooks.slack.com).
+To bring an existing org up to date later, run `scripts\updateOrg.bat` or `./scripts/updateOrg.sh` (optionally with the org alias). It upgrades the installed RFLIB packages with `sf rflib packages upgrade` and redeploys the demo source. Orgs created by older versions of this repository, which deployed RFLIB as source, can't be upgraded this way; create a new org instead.
 
-1. Select **DreamHouse** in the App Launcher.
+> **Known issue (rflib-plugin 0.21.0):** the RFLIB-TF package is installed under the name `RFLIB_TF`, so `sf rflib packages upgrade` reports it as not installed and won't upgrade it. When a new RFLIB-TF version is released, install it with `sf package install --package <04t ID> --target-org rflib_demo --wait 30`.
 
-1. Click the **Data Import** tab and click **Initialize Sample Data**.
+To check for newer RFLIB packages at any time:
 
-## Code highlights
+```bash
+sf rflib packages upgrade --target-org rflib_demo --dryrun
+```
 
-### Lightning components
-DreamHouse features a large number of Lightning Components to enhance the user experience. Lightning Components are used on the Property record page, on an app pages (**Property Finder** and **Property Explorer**), in the utility bar, and as quick actions.
+## Running the Plugin
 
-Installing a Lightning component as a **quick action** can be a great alternative to adding the component directly to the page layout because the component instantiation is deferred until the action button is clicked (lazy instantiation). Installing less frequently used components as quick or global actions can contribute to a faster page loading time, and a streamlined user interface. In DreamHouse, the [SmartHome](force-app/main/default/aura/SmartHome) component is installed as a quick action on the Property record page.
+`scripts/runRflibPlugin.bat` (Windows) and `scripts/runRflibPlugin.sh` (macOS/Linux) instrument the Apex classes, Aura components, LWC and Flows in `force-app` with RFLIB logging.
 
-The **utility bar** is a great place to host components you always want at your fingertips. [MortgageCalculator](force-app/main/default/aura/MortgageCalculator) is a great example.
+> **Warning:** Unless `--skip-reset` or `--dryrun` is passed, the scripts first run `git reset --hard` and discard **all** uncommitted changes, so that every run starts from the uninstrumented source.
 
-### Base Lightning components
-Base Lightning Components are a set of powerful UI components available in the Lightning Component Framework. The DreamHouse custom components use many Base Lightning Components as building blocks. For example, **lightning:card**, **lightning:button**, and **lightning:layout** are used throughout the application. [PropertyCarousel](force-app/main/default/aura/PropertyCarousel/PropertyCarousel.cmp), which allows you to navigate through the pictures of a property and upload new pictures, is built using **lightning:carousel** and **lightning:fileUpload**. [PropertySummary](force-app/main/default/aura/PropertySummary/PropertySummary.cmp) leverages **lightning:formattedAddress** and **lightning:formattedNumber**.
+Preview the changes first:
 
-### Lightning Data Service
-Lightning Data Service allows you to manipulate (retrieve, create, update, delete) Salesforce records without writing server-side code (Apex). In DreamHouse, all the Lightning components that work with a single Property record use Lightning Data Service. Check out [PropertySummary](force-app/main/default/aura/PropertySummary) for an example.
+```bash
+scripts\runRflibPlugin.bat --dryrun
+```
 
-### Third-Party JavaScript libraries
-You can use third-party JavaScript libraries in Lightning Components using **ltng:require**. For example:
-- [Map](force-app/main/default/aura/Map) and [PropertyListMap](force-app/main/default/aura/PropertyListMap) use the [Leaflet](https://leafletjs.com/) library.
-- [PriceRange](force-app/main/default/aura/PropertyListMap) uses the [nouislider](https://refreshless.com/nouislider/) library for its double slider.
+Then instrument the source:
 
-### Standard application events
-Standard application events are available by default in the framework and are used to trigger high level actions. For example, in [PropertySummary](force-app/main/default/aura/PropertySummary/PropertySummaryController.js), **force:navigateToSObject** is used to navigate to the broker record page, and **force:editRecord** is used to edit a record in place.
+```bash
+scripts\runRflibPlugin.bat --skip-reset --prettier
+```
 
-### Custom application events
-Custom application events are used for communication between components in App Builder. For example, the [PropertyFilterChange](force-app/main/default/aura/PropertyFilterChange) event is fired in the [PropertyFilter](force-app/main/default/aura/PropertyFilter) component to notify other components that new filtering criteria have been selected.
+| Option | Description |
+|--------|-------------|
+| `--target-org`, `-o <alias>` | Org the instrumented Flows will be deployed to (default: `rflib_demo`). Fault paths are only instrumented if this org has RFLIB 11.4.0+ installed as a package; otherwise they are skipped with a warning. |
+| `--prettier` | Format the instrumented Apex, Aura and LWC files with Prettier |
+| `--debug` | Enable debug output of the plugin |
+| `--skip-reset` | Don't run `git reset --hard` before instrumenting |
+| `--skip-instrumented` | Skip files that already contain RFLIB logging |
+| `--skip-fault-paths` | Don't add error logging to Flow fault paths |
+| `--dryrun` | Preview the changes without modifying any files (implies `--skip-reset`) |
 
-### Component events
-Component events are used for finer-grained communication between components. For example, the [PropertyPaginator](force-app/main/default/aura/PropertyPaginator) component fires the **pageNext** and **pagePrevious** events to notify its parent ([PropetyTileList](force-app/main/default/aura/PropertyTileList)) that the user requested the next or previous page.
+Options can be passed in any order. The scripts stop if the installed rflib-plugin is older than 0.21.0.
 
-### Custom page templates
-Custom page templates allow you to create ad hoc page layouts that admins can use in App Builder to create new pages. Custom page templates are implemented as Lightning Components. There are two custom page templates in Dreamhouse: [PageTemplate_2_6_4](force-app/main/default/aura/PageTemplate_2_6_4/PageTemplate_2_6_4.cmp) (used by the **Property Finder** page) and [PageTemplate_2_7_3](force-app/main/default/aura/PageTemplate_2_7_3/PageTemplate_2_7_3.cmp) (used by the **Property Explorer** page). They provide custom three column layouts using different relative widths for each column.
+Review the result with `git diff`, then deploy it and run the tests:
 
-### Reports and dashboards
-Reports and dashboards are easy to create and look great in Lightning. Just to get things started, the DreamHouse app includes a few reports in the **DreamHouse Reports** folder (**Days on Market**, **Properties by Broker**, and **Portfolio Health**), and a dashboard in the **DreamHouse Dashboard** folder (**My Dashboard**).
+```bash
+sf project deploy start --target-org rflib_demo
+```
 
-### Einstein Vision
-The [VisualSearchBox](force-app/main/default/aura/VisualSearchBox) component leverages Einstein Vision to provide a visual search feature that allows you to find houses based on the picture of a house you like. Just select or drag a picture in the Visual search area of the property filters: Einstein Vision will recognize the type of house (colonial, victorian, or contemporary) and you will be presented with a list of houses matching that category. Follow the instructions below to enable visual search in the **Property Finder** and **Property Explorer** pages:
+```bash
+sf apex run test --target-org rflib_demo --result-format human --code-coverage --wait 20
+```
 
-1. Get an **Einstein Platform Services** account. Follow the instructions [here](https://trailhead.salesforce.com/projects/predictive_vision_apex/steps/predictive_vision_apex_prep).
+See the [rflib-plugin README](https://github.com/j-fischer/rflib-plugin#readme) for all plugin commands.
 
-1. In Salesforce, click the **Files** tab and upload **einstein_platform.pem**.
+## Resetting the Demo
 
-1. In **Setup**, type **Custom** in the Quick Find box and click the **Custom Settings** link.
+The instrumentation only changes files in `force-app`, so git restores the original source:
 
-1. Click the first **New** Button (at the top of the screen).
+```bash
+git reset --hard
+```
 
-1. For **Einstein Vision Email**, specify the email address you used when you created your Einstein Platform Services account (step 1), and click **Save**.
+Running the plugin scripts without `--skip-reset` does the same before instrumenting. To restore the org as well, redeploy the source with `scripts\updateOrg.bat` / `./scripts/updateOrg.sh`, or delete the scratch org (`sf org delete scratch --target-org rflib_demo`) and run the setup script again.
 
-1. In the DreamHouse app, click the **Einstein Vision** tab.
+## Claude Code Skills
 
-1. Click the **Create Dataset** button.
+The [`.claude/skills`](.claude/skills) folder contains two skills for [Claude Code](https://claude.com/claude-code):
 
-1. In the **houses** tile, click the **Train** button, the click the **Models** tab.
+- `rflib-instrument` combines the plugin's instrument commands with edits for patterns the plugin doesn't cover
+- `rflib-debug` uses the `sf rflib debug` commands to investigate issues from log archives, application events, logger settings and user permissions
 
-1. Click the **Refresh Models** button until the Progress column indicates **100%**.
+## About DreamHouse
 
-1. Copy the **Model Id** in your clipboard.
+DreamHouse is a Salesforce sample application for the real estate business that lets brokers manage their properties and customers find their dream house. This repository is based on the Aura version, [dreamhouseapp/dreamhouse-sfdx](https://github.com/dreamhouseapp/dreamhouse-sfdx); see that repository for the original documentation and code highlights. A Lightning Web Components version is available at [dreamhouseapp/dreamhouse-lwc](https://github.com/dreamhouseapp/dreamhouse-lwc).
 
-1. Click the **Property Finder** Tab, click the gear icon (upper right corner), and click **Edit Page**. Click the **Filters** component and paste the Model Id in the **Einstein Model Id** field in the right sidebar. Save the page.
-
-1. Repeat the last step for the **Property Explorer** page.
-
-You can now search houses by uploading (or dropping) a picture in the visual search box that is part of the Filters component on the **Property Finder** and **Property Explorer** pages.
-
-## Additional resources
-DreamHouse has many more features not discussed here. For example, DreamHouse also demonstrates how to:
-
-- Use the Salesforce Mobile App
-- Create a customer engagement mobile app with the Mobile SDK
-- Automate processes with Process Builder, including sending push notification messages to the customer engagement app
-- Integrate with Alexa, Slack, and Facebook Messenger
-- Integrate with IoT devices like smart lights, smart thermostats, and smart locks
-
-Head over to [dreamhouseapp.io](http://dreamhouseapp.io) to learn more.
+After setting up the org, select **DreamHouse** in the App Launcher, open the **Sample Data Import** tab and click **Import Sample Data** to load the sample data. **Import Sample Data using Retryable Action** does the same asynchronously through the RFLIB-TF Retryable Action framework.
