@@ -15,10 +15,10 @@ instrumentation) with direct file editing to cover patterns the CLI engine canno
 ## Usage
 
 ```
-/rflib-instrument [apex|lwc|aura|flow|all] [--sourcepath <path>] [options]
+/rflib-instrument [apex|lwc|aura|flow|all] [--sourcepath <path>] [--target-org <alias>] [options]
 ```
 
-## Three-Phase Workflow
+## Workflow
 
 ### Phase 1 — Argument Resolution
 
@@ -42,6 +42,11 @@ Common defaults to suggest:
 - flow: `force-app/main/default/flows`
 - all:  `force-app`
 
+**Determine the target org** (flow and all only) from `--target-org` / `-o`. It is **required** by
+`sf rflib logging flow instrument` (rflib-plugin 0.21.0+): the command checks the RFLIB package
+installed in that org to decide whether Flow fault paths can be instrumented. If absent, ask:
+> "Which org will the instrumented Flows be deployed to? (alias or username, e.g. rflib_demo)"
+
 **Resolve options** — defaults if not specified in `$ARGUMENTS`:
 
 | Flag                  | Default | Notes                                                    |
@@ -53,11 +58,24 @@ Common defaults to suggest:
 | `--exclude` / `-e`    | none    | Glob pattern for generated or managed package files      |
 | `--no-if`             | false   | apex/lwc/aura only — omit if/else condition logging      |
 | `--no-catch`          | false   | apex only — omit catch block logging                     |
+| `--target-org` / `-o` | none    | flow only — **required**; org the Flows will be deployed to |
+| `--skip-fault-paths`  | false   | flow only — do not add error logging to fault paths      |
 | `--concurrency` / `-c`| 10      | Increase for large codebases                             |
 
 **Flag compatibility** — do not pass unsupported flags:
 - `--no-catch`: apex only
 - `--no-if`, `--prettier`: apex, lwc, aura — NOT flow
+- `--target-org` (required), `--skip-fault-paths`: flow only — NOT apex, lwc, aura
+
+**Flow fault paths** — for every element that can fail (Actions, Apex Plugins, Create/Delete/Get/Update
+Records, Waits), the flow command logs an `ERROR` on the fault path. Existing fault paths get the log
+action as their first step; elements without one get a new fault path that logs the error and then
+terminates the transaction (the `Terminate Transaction` option of the RFLIB `Log Message` action), so
+the Flow still fails as before. This requires **RFLIB 11.4.0+ installed as a package** in the target
+org. Otherwise the command prints a warning, skips fault paths, and still adds start and decision
+logging. If you see that warning, tell the user and suggest
+`sf rflib packages upgrade --target-org <alias>` (or, for RFLIB deployed as source, installing the
+RFLIB package). `--skip-fault-paths` still requires `--target-org`, but the org isn't queried.
 
 ---
 
@@ -86,8 +104,12 @@ For `all`, run each type sequentially (skip unsupported flags per type):
 sf rflib logging apex instrument --sourcepath <path> [flags]
 sf rflib logging lwc  instrument --sourcepath <path> [flags]
 sf rflib logging aura instrument --sourcepath <path> [flags]
-sf rflib logging flow instrument --sourcepath <path> [flags]
+sf rflib logging flow instrument --sourcepath <path> --target-org <alias> [flags]
 ```
+
+In this demo repository, `scripts/runRflibPlugin.bat` / `scripts/runRflibPlugin.sh` run all four.
+**They run `git reset --hard` unless `--skip-reset` or `--dryrun` is passed** — never run them
+without one of those flags while there are uncommitted changes.
 
 ---
 
@@ -167,19 +189,24 @@ Group Phase 2 changes by file. Offer to run Prettier if not already applied.
 | apex | `*.cls`        | method entry, catch, if/else, debug repl | switch, ternary, loops, generic fix      |
 | lwc  | `*.js`, `*.ts` | method entry, catch, if/else, console repl, promise chains | switch, ternary, loops, union type fix |
 | aura | `*.js` in aura | method entry, catch, if/else, console repl, promise chains | switch, ternary, loops |
-| flow | `*.flow-meta.xml` | log actions, decision branches, layout | nothing (XML-only, fully handled)      |
+| flow | `*.flow-meta.xml` | start and decision logging, fault-path error logging (RFLIB 11.4.0+ in target org), auto-layout | nothing (XML-only, fully handled) |
 
 ## Common Workflows
 
 ### First-time onboarding
 ```
-/rflib-instrument all --sourcepath force-app
+/rflib-instrument all --sourcepath force-app --target-org rflib_demo
 ```
 Dry-runs CLI, shows preview, confirms, then Claude fills gaps.
 
 ### Re-run on partially-instrumented codebase
 ```
 /rflib-instrument apex --sourcepath force-app --skip-instrumented
+```
+
+### Instrument Flows without fault-path logging
+```
+/rflib-instrument flow --sourcepath force-app/main/default/flows --target-org rflib_demo --skip-fault-paths
 ```
 
 ### Exclude generated code
