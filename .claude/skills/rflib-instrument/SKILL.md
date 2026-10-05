@@ -75,7 +75,9 @@ the Flow still fails as before. This requires **RFLIB 11.4.0+ installed as a pac
 org. Otherwise the command prints a warning, skips fault paths, and still adds start and decision
 logging. If you see that warning, tell the user and suggest
 `sf rflib packages upgrade --target-org <alias>` (or, for RFLIB deployed as source, installing the
-RFLIB package). `--skip-fault-paths` still requires `--target-org`, but the org isn't queried.
+RFLIB package). In this demo, orgs created by `scripts/orgInit` deploy RFLIB from source by default, so fault
+paths are skipped there; an org created with `scripts/orgInit.bat --packages` gets them. `--skip-fault-paths`
+still requires `--target-org`, but the org isn't queried.
 
 ---
 

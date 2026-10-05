@@ -19,12 +19,14 @@ check user permissions. The commands call the Salesforce REST API directly.
 
 - rflib-plugin installed: `sf plugins install rflib-plugin` (the debug commands require 0.19.0+;
   this demo requires 0.21.0+ for Flow instrumentation)
-- The **RFLIB** package is installed in the target org. No other package is needed.
+- **RFLIB** is installed in the target org, as the RFLIB package or deployed from source (the commands only
+  query the RFLIB objects). No other package is needed.
 - The running user is assigned the `rflib_Ops_Center_Access` permission set (or has equivalent read
   access to `rflib_Logs_Archive__b`, `rflib_Application_Event__c` and `rflib_Logger_Settings__c`,
   plus update access on Logger Settings for `loggersettings update`).
 
-In this demo, `scripts/orgInit` sets all of this up; the default org alias is `rflib_demo`.
+In this demo, `scripts/orgInit` sets all of this up (from the `../rflib` source by default, or with
+`--packages`); the default org alias is `rflib_demo`.
 
 If a command fails with `RflibNotInstalled` ("The object ... was not found in the target org"),
 RFLIB is missing or the user lacks read access — report that instead of retrying.

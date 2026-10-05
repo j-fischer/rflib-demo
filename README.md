@@ -2,36 +2,36 @@
 
 A demo and test bed for [RFLIB](https://github.com/j-fischer/rflib), the open-source logging framework for Salesforce, and for [rflib-plugin](https://github.com/j-fischer/rflib-plugin), the Salesforce CLI plugin that automatically instruments Salesforce metadata with RFLIB logging.
 
-The app is the classic Aura version of the DreamHouse real estate sample app (see [About DreamHouse](#about-dreamhouse)). Its Apex classes, Aura components, Lightning Web Component and Flows give the plugin a realistic code base to instrument, and the org setup installs the RFLIB packages so all RFLIB features can be shown:
+The app is the classic Aura version of the DreamHouse real estate sample app (see [About DreamHouse](#about-dreamhouse)). Its Apex classes, Aura components, Lightning Web Component and Flows give the plugin a realistic code base to instrument, and the org setup deploys RFLIB from source or installs the RFLIB packages so all RFLIB features can be shown:
 
 - Logging from Apex, Aura, LWC and Flows, viewed in the RFLIB Ops Center (Log Monitor, Log Archive, Management Dashboard)
 - Application Events, Feature Switches (RFLIB-FS), the Trigger Framework and Retryable Actions (RFLIB-TF)
 - Log forwarding to [Pharos](https://pharos.ai/) (RFLIB-PHAROS)
-- Automatic instrumentation with `sf rflib logging ... instrument`, including Flow fault-path logging
+- Automatic instrumentation with `sf rflib logging ... instrument`, including Flow fault-path logging (with the RFLIB packages)
 - Debugging an org with the `sf rflib debug` commands, e.g. from Claude Code (see [`.claude/skills`](.claude/skills))
 
 ## Prerequisites
 
 - A [Dev Hub](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_enable_devhub.htm) org, authorized as your default Dev Hub (`sf org login web --set-default-dev-hub`)
 - The [Salesforce CLI](https://developer.salesforce.com/tools/salesforcecli) (`sf`)
-- [Node.js](https://nodejs.org/) on your `PATH`; the setup scripts use it to read package versions and check the plugin version
+- [Node.js](https://nodejs.org/) on your `PATH`; the scripts use it to check the plugin version and to look up package versions
 - rflib-plugin **0.21.0 or later**:
     ```bash
     sf plugins install rflib-plugin
     ```
-- Optional: a checkout of [rflib](https://github.com/j-fischer/rflib) next to this repository (`../rflib`). The setup reads the latest RFLIB package versions from `../rflib/sfdx-project.json` if it exists, and from the RFLIB repository on GitHub otherwise. Set `RFLIB_PROJECT_JSON` to a path or URL to use a different `sfdx-project.json`.
+- A checkout of [rflib](https://github.com/j-fischer/rflib) next to this repository (`../rflib`). By default, the setup deploys RFLIB from this checkout. It isn't needed with `--packages`.
 
 ## Setup
 
 The setup script creates a scratch org (default alias `rflib_demo`, 30 days) and then:
 
-1. Installs the latest **RFLIB**, **RFLIB-FS** and **RFLIB-TF** packages, in dependency order
-2. Installs **Pharos** and then **RFLIB-PHAROS**
+1. Deploys the RFLIB source from `../rflib` (RFLIB, RFLIB-FS, RFLIB-TF and RFLIB-PHAROS), or with `--packages`, installs the latest **RFLIB**, **RFLIB-FS** and **RFLIB-TF** packages in dependency order
+2. Installs **Pharos**, then, with `--packages`, the **RFLIB-PHAROS** package
 3. Installs **Big Object Utility**
 4. Assigns the RFLIB permission sets, deploys the demo source and assigns the `dreamhouse` permission set
 5. Configures the RFLIB Logger Settings (`apex/resetCustomSettings.apex`, `apex/pharosPostInstall.apex`) and resets source tracking
 
-RFLIB is installed as packages rather than deployed as source because the plugin only instruments Flow fault paths when the target org has RFLIB 11.4.0 or later installed as a package. The script stops at the first step that fails.
+The script stops at the first step that fails.
 
 Windows:
 
@@ -45,19 +45,35 @@ macOS/Linux:
 ./scripts/orgInit.sh
 ```
 
-Pass an alias to use a different name, e.g. `scripts\orgInit.bat my_demo`. The new org becomes the default org of this project.
+| Option | Description |
+|--------|-------------|
+| `--alias`, `-a <alias>` | Alias of the new scratch org (default: `rflib_demo`). The new org becomes the default org of this project. |
+| `--packages` | Install the latest released RFLIB packages instead of deploying the source from `../rflib` |
+
+**Source or packages?** Deploying the source runs the RFLIB code you are working on. The plugin, however, only instruments Flow fault paths when the target org has RFLIB 11.4.0 or later installed as a **package**. In an org set up from source, fault paths are skipped with a warning. Use `--packages` to demo them. The package version IDs aren't hardcoded: the latest version of each package is read from `packageAliases` in `../rflib/sfdx-project.json`, or from the RFLIB repository on GitHub if there is no checkout. Set `RFLIB_PROJECT_JSON` to a path or URL to use a different `sfdx-project.json`.
 
 On Windows, use the `.bat` scripts. In Git Bash, the `sf` wrapper of the Windows installer can return a non-zero exit code for successful commands, which stops the `.sh` scripts.
 
-To bring an existing org up to date later, run `scripts\updateOrg.bat` or `./scripts/updateOrg.sh` (optionally with the org alias). It upgrades the installed RFLIB packages with `sf rflib packages upgrade` and redeploys the demo source. Orgs created by older versions of this repository, which deployed RFLIB as source, can't be upgraded this way; create a new org instead.
+### Updating an Org
 
-> **Known issue (rflib-plugin 0.21.0):** the RFLIB-TF package is installed under the name `RFLIB_TF`, so `sf rflib packages upgrade` reports it as not installed and won't upgrade it. When a new RFLIB-TF version is released, install it with `sf package install --package <04t ID> --target-org rflib_demo --wait 30`.
+```bash
+scripts\updateOrg.bat
+```
 
-To check for newer RFLIB packages at any time:
+`./scripts/updateOrg.sh` on macOS/Linux. By default, it redeploys the RFLIB source from `../rflib` and the demo source, and resets the Logger Settings. Options:
+
+| Option | Description |
+|--------|-------------|
+| `--target-org`, `-o <alias>` | Org to update (default: `rflib_demo`) |
+| `--packages` | For orgs created with `--packages`: upgrade the installed RFLIB packages with `sf rflib packages upgrade` instead of deploying the RFLIB source |
+
+To check a package-based org for newer RFLIB packages:
 
 ```bash
 sf rflib packages upgrade --target-org rflib_demo --dryrun
 ```
+
+> **Known issue (rflib-plugin 0.21.0):** the RFLIB-TF package is installed under the name `RFLIB_TF`, so `sf rflib packages upgrade` reports it as not installed and won't upgrade it. When a new RFLIB-TF version is released, install it with `sf package install --package <04t ID> --target-org rflib_demo --wait 30`.
 
 ## Running the Plugin
 
@@ -79,7 +95,7 @@ scripts\runRflibPlugin.bat --skip-reset --prettier
 
 | Option | Description |
 |--------|-------------|
-| `--target-org`, `-o <alias>` | Org the instrumented Flows will be deployed to (default: `rflib_demo`). Fault paths are only instrumented if this org has RFLIB 11.4.0+ installed as a package; otherwise they are skipped with a warning. |
+| `--target-org`, `-o <alias>` | Org the instrumented Flows will be deployed to (default: `rflib_demo`). Fault paths are only instrumented if this org has RFLIB 11.4.0+ installed as a package (set up with `orgInit --packages`); otherwise they are skipped with a warning. |
 | `--prettier` | Format the instrumented Apex, Aura and LWC files with Prettier |
 | `--debug` | Enable debug output of the plugin |
 | `--skip-reset` | Don't run `git reset --hard` before instrumenting |
@@ -109,7 +125,7 @@ The instrumentation only changes files in `force-app`, so git restores the origi
 git reset --hard
 ```
 
-Running the plugin scripts without `--skip-reset` does the same before instrumenting. To restore the org as well, redeploy the source with `scripts\updateOrg.bat` / `./scripts/updateOrg.sh`, or delete the scratch org (`sf org delete scratch --target-org rflib_demo`) and run the setup script again.
+Running the plugin scripts without `--skip-reset` does the same before instrumenting. To restore the org as well, redeploy the source with `scripts\updateOrg.bat` / `./scripts/updateOrg.sh` (add `--packages` for a package-based org), or delete the scratch org (`sf org delete scratch --target-org rflib_demo`) and run the setup script again.
 
 ## Claude Code Skills
 

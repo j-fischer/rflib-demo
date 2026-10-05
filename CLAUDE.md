@@ -25,7 +25,7 @@ rflib-demo/
 │   ├── updateOrg.bat/.sh      # Upgrade RFLIB packages and redeploy source to an existing org
 │   ├── runRflibPlugin.bat/.sh # Run the RFLIB SF CLI plugin instrumentation
 │   └── lib/                   # Node helpers: latest RFLIB package versions, rflib-plugin version check
-├── .circleci/             # CircleCI CI/CD pipeline (outdated, see below)
+├── .circleci/             # Unused CircleCI config from the original DreamHouse repo
 └── sfdx-project.json      # SFDX project manifest (API v59, package: dreamhouse)
 ```
 
@@ -35,7 +35,7 @@ rflib-demo/
 
 - A default Dev Hub, the `sf` CLI and Node.js on the PATH
 - rflib-plugin >= 0.21.0: `sf plugins install rflib-plugin`
-- Optional: a sibling `../rflib` checkout (used to look up the latest RFLIB package versions; GitHub otherwise)
+- A sibling `../rflib` checkout: the RFLIB source deployed by default (not needed with `--packages`)
 
 ---
 
@@ -43,34 +43,39 @@ rflib-demo/
 
 ### Org Setup
 
+`orgInit.bat` and `updateOrg.bat` are the scripts in daily use; the `.sh` versions mirror them.
+
 ```bash
-# Windows — create scratch org (default alias rflib_demo), install packages, deploy source
-scripts\orgInit.bat [alias]
+# Windows — create scratch org (default alias rflib_demo); RFLIB is deployed from the ../rflib source
+scripts\orgInit.bat [--alias <alias>] [--packages]
 
-# macOS/Linux — same
-./scripts/orgInit.sh [alias]
+# Redeploy the ../rflib source and the demo source to an existing org
+scripts\updateOrg.bat [--target-org <alias>] [--packages]
 
-# Upgrade the RFLIB packages (sf rflib packages upgrade) and redeploy the source
-scripts\updateOrg.bat [alias]
-./scripts/updateOrg.sh [alias]
+# macOS/Linux — same options
+./scripts/orgInit.sh [--alias <alias>] [--packages]
+./scripts/updateOrg.sh [--target-org <alias>] [--packages]
 ```
 
-RFLIB is installed as **unlocked packages**, not deployed as source, because the plugin only instruments
-Flow fault paths when the target org has the RFLIB 11.4.0+ package. orgInit stops at the first failing step
-and runs in this order (each step needs the ones before it):
+By default, RFLIB (all four package directories of `../rflib`) is deployed as **unpackaged source**, so the org
+runs the RFLIB code under development. `--packages` installs the latest released RFLIB packages instead, and
+`updateOrg --packages` upgrades them with `sf rflib packages upgrade`. The plugin only instruments Flow fault
+paths when the target org has the RFLIB 11.4.0+ **package**, so use `--packages` to demo fault paths; in a
+source-based org they are skipped with a warning.
 
-1. RFLIB → RFLIB-FS → RFLIB-TF (RFLIB-TF 4.0.0 needs RFLIB >= 10.0.0 and RFLIB-FS >= 4.0.0)
-2. Pharos (third-party) → RFLIB-PHAROS → Big Object Utility
+orgInit stops at the first failing step and runs in this order (each step needs the ones before it):
+
+1. RFLIB: source deploy of `../rflib`, or packages RFLIB → RFLIB-FS → RFLIB-TF (RFLIB-TF 4.0.0 needs RFLIB >= 10.0.0
+   and RFLIB-FS >= 4.0.0)
+2. Pharos (third-party) → RFLIB-PHAROS package (`--packages` only) → Big Object Utility
 3. RFLIB permission sets → demo source (its custom metadata uses RFLIB-FS/TF types) → `dreamhouse` permission set
-4. `apex/resetCustomSettings.apex`, `apex/pharosPostInstall.apex` (needs RFLIB-PHAROS) → `sf project reset tracking`
+4. `apex/resetCustomSettings.apex`, `apex/pharosPostInstall.apex` (needs RFLIB-PHAROS and Pharos) → `sf project reset tracking`
 
-The RFLIB package version IDs are **not hardcoded**: `scripts/lib/latestRflibPackage.js` reads the latest
-version of each package from `packageAliases` in `../rflib/sfdx-project.json` (or from the RFLIB repository
-on GitHub if there is no sibling checkout, or from `RFLIB_PROJECT_JSON` if set) — the same source
-`sf rflib packages upgrade` uses. The third-party Pharos and Big Object Utility package IDs are set at the
-top of the orgInit scripts.
-
-Orgs created before this setup deployed RFLIB as source; they can't be upgraded with updateOrg. Recreate them.
+With `--packages`, the RFLIB package version IDs are **not hardcoded**: `scripts/lib/latestRflibPackage.js` reads
+the latest version of each package from `packageAliases` in `../rflib/sfdx-project.json` (or from the RFLIB
+repository on GitHub if there is no sibling checkout, or from `RFLIB_PROJECT_JSON` if set) — the same source
+`sf rflib packages upgrade` uses. The third-party Pharos and Big Object Utility package IDs are set at the top
+of the orgInit scripts.
 
 Known issues:
 - rflib-plugin 0.21.0: RFLIB-TF's installed package name is `RFLIB_TF`, so `sf rflib packages upgrade` reports
@@ -171,21 +176,11 @@ logger.info('Message with {0}', [value]);
 
 ---
 
-## CI/CD (CircleCI)
+## CI/CD
 
-The pipeline (`.circleci/config.yml`) runs on every push:
-1. Creates a scratch org
-2. Pushes source
-3. Runs Apex tests
-4. On `master`: creates and installs an unlocked package
-5. Deletes the scratch org
-
-Authentication uses JWT with an encrypted `server.key`. Do not commit unencrypted credentials.
-
-**Known gap:** the pipeline still uses the deprecated `sfdx-cli` / `force:*` commands and pushes the demo
-source without installing the RFLIB packages first, so the push fails on the RFLIB references.
-`scripts/packagingDeployment.sh` has the same problems, and `sfdx-project.json` declares no package
-dependencies on RFLIB for the `dreamhouse` package.
+No build server is attached to this project. `.circleci/config.yml` and `scripts/packagingDeployment.sh` are
+leftovers from the original DreamHouse repository and are not maintained (they use the deprecated `sfdx`
+commands and don't set up RFLIB). Don't rely on them.
 
 ---
 
