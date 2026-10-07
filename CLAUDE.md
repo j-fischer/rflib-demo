@@ -21,8 +21,8 @@ rflib-demo/
 ├── data/                  # Sample data for brokers and properties
 ├── force-app/main/default # Salesforce metadata (Apex, Aura, LWC, Flows, Objects, etc.)
 ├── scripts/               # Org setup and plugin runner scripts (.bat for Windows, .sh for macOS/Linux)
-│   ├── orgInit.bat/.sh        # Create scratch org, install RFLIB packages, deploy source
-│   ├── updateOrg.bat/.sh      # Upgrade RFLIB packages and redeploy source to an existing org
+│   ├── orgInit.bat/.sh        # Create scratch org, deploy ../rflib source (or --packages), deploy demo
+│   ├── updateOrg.bat/.sh      # Redeploy ../rflib and demo source (or upgrade packages with --packages)
 │   ├── runRflibPlugin.bat/.sh # Run the RFLIB SF CLI plugin instrumentation
 │   └── lib/                   # Node helpers: latest RFLIB package versions, rflib-plugin version check
 ├── .circleci/             # Unused CircleCI config from the original DreamHouse repo
@@ -130,7 +130,7 @@ sf apex run test --target-org <alias> --result-format human --code-coverage
 ### Debugging an Org
 
 The `sf rflib debug` commands (`applicationevents get`, `logarchives get`, `loggersettings get/update`,
-`userpermissions get`) read and tune RFLIB telemetry in an org. They need the RFLIB package and the
+`userpermissions get`) read and tune RFLIB telemetry in an org. They need RFLIB in the org (source or package) and the
 `rflib_Ops_Center_Access` permission set. Use the `rflib-debug` skill.
 
 Check for newer RFLIB packages with `sf rflib packages upgrade --target-org rflib_demo --dryrun`.
@@ -198,7 +198,8 @@ Config: `prettier.config.js` — single quotes, 4-space tabs, 120 char line widt
 
 ## Notes
 
-- Pharos integration: orgInit installs Pharos and RFLIB-PHAROS, then `apex/pharosPostInstall.apex` creates the
+- Pharos integration: orgInit installs Pharos (RFLIB-PHAROS comes from the ../rflib source, or as a package with
+  `--packages`), then `apex/pharosPostInstall.apex` creates the
   post-processing settings and sets `Pharos_Log_Level__c` to WARN.
 - The `rflibCustomSettingsEditor` LWC is the only LWC; the rest of the UI is Aura (by design — this is a demo of an older-generation app being modernized with RFLIB).
 - After running the plugin, review the diff carefully — the plugin modifies files in place.
