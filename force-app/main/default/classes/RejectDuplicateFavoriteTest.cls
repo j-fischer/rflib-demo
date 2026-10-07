@@ -16,7 +16,7 @@ public class RejectDuplicateFavoriteTest {
     static testMethod void acceptNonDuplicate() {
         Boolean success = true;
         try {
-            Property__c p = new Property__c();
+            Property__c p = new Property__c(Date_Listed__c=Date.today());
             insert p;
             User u = getTestUser();
             insert u;
@@ -33,7 +33,7 @@ public class RejectDuplicateFavoriteTest {
     static testMethod void rejectDuplicate() {
         Boolean success = true;
         try {
-            Property__c p = new Property__c();
+            Property__c p = new Property__c(Date_Listed__c=Date.today());
             insert p;
             User u = getTestUser();
             insert u;
